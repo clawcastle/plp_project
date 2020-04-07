@@ -1,16 +1,19 @@
-import java.awt.{BorderLayout, Color, Dimension, GridBagConstraints, GridBagLayout}
-
-import javax.swing.{BorderFactory, JComponent, JFrame, JLabel, JPanel, JTextArea, JTextField}
+import java.awt.image.BufferedImage
+import java.awt.{Color, Dimension, GridBagConstraints, GridBagLayout}
+import javax.swing.{BorderFactory, JComponent, JFrame, JPanel, JTextArea}
 
 object Main extends App {
   val g = new GridBagConstraints()
   g.fill = GridBagConstraints.BOTH
   val frame = new JFrame("Graphics IDE")
-
+  val drawingArea = createDrawingArea()
   val mainPanel = new JPanel(new GridBagLayout())
+  val command = "(LINE (0 0) (100 100))"
+  val coords = commandParser.parseCommand(command)
+  //val coords = draw.drawLine(0, 0, 200, 200)
   mainPanel.setBackground(Color.red)
 
-  mainPanel.add(createDrawingArea(), g)
+  mainPanel.add(drawingArea, g)
   mainPanel.add(createTextArea(), g)
   mainPanel.add(createErrorArea(), g)
 
@@ -21,13 +24,14 @@ object Main extends App {
   frame.setLocationRelativeTo(null)
   frame.setVisible(true)
 
-  def createDrawingArea(): JComponent = {
+  drawingArea.paintPublic(coords)
+
+  def createDrawingArea(): CustomCanvas = {
     g.weightx = 0.7
     g.weighty = 0.8
-    val drawingArea = new JPanel()
 
-    drawingArea.setBackground(Color.blue)
-    return drawingArea;
+    val c = new CustomCanvas()
+    return c
   }
 
   def createTextArea(): JComponent = {
