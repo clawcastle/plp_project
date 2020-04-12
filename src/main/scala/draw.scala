@@ -1,5 +1,5 @@
 object draw {
-  def drawLine(x0: Int, y0: Int, x1: Int, y1: Int): List[(Int, Int)] = {
+  def drawLine(x0: Int, y0: Int, x1: Int, y1: Int): CustomList[(Int, Int)] = {
     return (x0 to x1).map(x => (x,bresenhams(x0, y0, x1, y1, x))).toList
   }
 
