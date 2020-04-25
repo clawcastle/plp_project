@@ -13,12 +13,12 @@ object CustomList {
     case Cons(head, tail) => foldl(tail, func(head, seed), func)
   }
 
-  def find(value: T, list: CustomList[T]): Boolean = list match {
+  def find[T](value: T, list: CustomList[T]): Boolean = list match {
     case Nil() => false
     case Cons(head, tail) => head == value || find(value, tail)
   }
 
-  def forEach(list: CustomList[T], func: T => Unit): Unit = list match {
+  def forEach[T](list: CustomList[T], func: T => Unit): Unit = list match {
     case Nil() => ();
     case Cons(head, tail) => {
       func(head);
@@ -26,33 +26,33 @@ object CustomList {
     }
   }
 
-  def reverse(list: CustomList[T]): CustomList[T] = reverseRec(list, () => Nil())
+  def reverse[T](list: CustomList[T]): CustomList[T] = reverseRec(list, () => Nil())
 
-  def reverseRec(list: CustomList[T], cont: () => CustomList[T]): CustomList[T] = list match {
+  def reverseRec[T](list: CustomList[T], cont: () => CustomList[T]): CustomList[T] = list match {
     case Nil() => cont()
     case Cons(head, tail) => reverseRec(list, () => Cons(head, cont()))
   }
 
-  def remove(list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(removeRec(list, predicate, () => Nil()))
+  def remove[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(removeRec(list, predicate, () => Nil()))
 
-  private def removeRec(list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
+  private def removeRec[T](list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
     case Nil() => cont()
     case Cons(head, tail) => if(predicate(head)) removeRec(tail, predicate, () => cont()) else removeRec(tail, predicate, () => Cons(head, cont()))
   }
 
-  def any(list: CustomList[T], predicate: T => Boolean): Boolean = list match {
+  def any[T](list: CustomList[T], predicate: T => Boolean): Boolean = list match {
     case Nil() => false
     case Cons(head, tail) => predicate(head) || any(tail, predicate)
   }
 
-  def all(list: CustomList[T], predicate: T => Boolean): Boolean = list match {
+  def all[T](list: CustomList[T], predicate: T => Boolean): Boolean = list match {
     case Nil() => true
     case Cons(head, tail) =>predicate(head) && all(tail, predicate)
   }
 
-  def filter(list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(filterRec(list, predicate, () => Nil()))
+  def filter[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(filterRec(list, predicate, () => Nil()))
 
-  private def filterRec(list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
+  private def filterRec[T](list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
     case Nil() => cont()
     case Cons(head, tail) => if (predicate(head)) filterRec(tail, predicate, () => Cons(head, cont())) else filterRec(tail, predicate, () => cont())
   }
