@@ -9,7 +9,7 @@ object draw {
 
   def drawCircle(centre_x: Int, centre_y: Int, radius: Int) = radius match {
     case radius <= 0 => Cons((centre_x, centre_y), Nil())
-    case radius > 0 => drawCircleRec(centre_x, centre_y, 0, 0, () => 1 - radius, () => Nil())
+    case radius > 0 => drawCircleRec(centre_x, centre_y, radius, 0, () => 1 - radius, () => Nil())
   }
 
   def drawCircleRec(centre_x: Int, centre_y: Int, x: Int, y: Int, p: () => Int, cont: () => CustomList[(Int, Int)]): CustomList[(Int, Int)] = {
