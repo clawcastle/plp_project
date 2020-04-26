@@ -19,12 +19,12 @@ object commandParser {
   }
 
   def mapToShapes(commands: String): Unit = {
-    parseCommands(commands).map(l => draw.drawLine(l))
+    CustomList.map(parseCommands(commands), (l: CustomList[String]) => draw.drawLine(l))
   }
 }
 
 class Shape {
-  val coordinates: CustomList[Coordinates] = CustomList[Coordinates]
+  val coordinates: CustomList[Coordinates] = Nil()
 }
 
 class Square extends Shape {

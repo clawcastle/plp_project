@@ -1,6 +1,21 @@
 import scala.collection.immutable
 
-sealed abstract class CustomList[T]
+sealed abstract class CustomList[T] { self =>
+  def apply(i: Int): T = applyRec(i, self)
+
+  def length(): Int = lengthRec(self, 0)
+
+  private def applyRec(i: Int, list: CustomList[T]): T = (list, i == 0) match {
+    case (Nil(), true | false) => throw new IndexOutOfBoundsException()
+    case (Cons(head,tail), false) => applyRec(i - 1, tail)
+    case (Cons(head,tail), true) => head
+  }
+
+  private def lengthRec(list: CustomList[T], runningCount: Int): Int = list match {
+    case Nil() => runningCount
+    case Cons(head, tail) => lengthRec(tail, runningCount + 1)
+  }
+}
 
 object CustomList {
   def map[T1, T2](list: CustomList[T1], func: T1 => T2): CustomList[T2] = list match {

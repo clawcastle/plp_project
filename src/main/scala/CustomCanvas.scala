@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
 class CustomCanvas extends JPanel {
-  var intList: CustomList[(Int, Int)]
+  var intList: CustomList[(Int, Int)] = Nil()
 
   override def paint(g: _root_.java.awt.Graphics): Unit = {
     if(intList.isInstanceOf[Nil[(Int,Int)]]) {
@@ -12,8 +12,9 @@ class CustomCanvas extends JPanel {
     }
     val list = intList.asInstanceOf[Cons[(Int,Int)]]
     //val buf = new BufferedImage(100, 100, BufferedImage.TYPE_3BYTE_BGR)
-    while(!list.tail.isInstanceOf[Nil[(Int,Int)]]) {
-      g.fillRect(list.head._1, list.head._2, 1, 1)
+
+    for(i <- 0 until list.length()) {
+      g.fillRect(list(i)._1, list(i)._2, 1, 1)
     }
   }
 
