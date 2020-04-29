@@ -7,8 +7,8 @@ sealed abstract class CustomList[T] { self =>
 
   private def applyRec(i: Int, list: CustomList[T]): T = (list, i == 0) match {
     case (Nil(), true | false) => throw new IndexOutOfBoundsException()
-    case (Cons(head,tail), false) => applyRec(i - 1, tail)
-    case (Cons(head,tail), true) => head
+    case (Cons(_,tail), false) => applyRec(i - 1, tail)
+    case (Cons(head,_), true) => head
   }
 
   private def lengthRec(list: CustomList[T], runningCount: Int): Int = list match {

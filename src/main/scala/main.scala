@@ -9,9 +9,9 @@ object Main extends App {
   val drawingArea = createDrawingArea()
   val mainPanel = new JPanel(new GridBagLayout())
   val command = "(LINE (0 0) (100 100))"
-  val coords = commandParser.parseCommand(command)
+  //val coords = commandParser.parseCommand(command)
   //val coords = draw.drawLine(0, 0, 200, 200)
-  mainPanel.setBackground(Color.red)
+  //mainPanel.setBackground(Color.red)
 
   mainPanel.add(drawingArea, g)
   mainPanel.add(createTextArea(), g)
@@ -24,7 +24,7 @@ object Main extends App {
   frame.setLocationRelativeTo(null)
   frame.setVisible(true)
 
-  drawingArea.paintPublic(coords)
+  //drawingArea.paintPublic(coords)
 
   def createDrawingArea(): CustomCanvas = {
     g.weightx = 0.7

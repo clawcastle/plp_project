@@ -4,9 +4,8 @@ object commandParser {
     str.replace(charToRemove.toString, "");
   }
 
-  def drawLine(command: String): CustomList[(Int,Int)] = {
-    val params = command.split(" ").tail.map(x => x.toInt)
-    draw.drawLine(params(0), params(1), params(2), params(3))
+  def drawLine(params: CustomList[String]): CustomList[(Int,Int)] = {
+    draw.drawLine(params(0).asInstanceOf[Int], params(1).asInstanceOf[Int], params(2).asInstanceOf[Int], params(3).asInstanceOf[Int])
   }
 
   def transformString(str: String, splitChar: Char, transformers: CustomList[String => String]): CustomList[String] = transformers match {
@@ -19,7 +18,7 @@ object commandParser {
   }
 
   def mapToShapes(commands: String): Unit = {
-    CustomList.map(parseCommands(commands), (l: CustomList[String]) => draw.drawLine(l))
+    CustomList.map(parseCommands(commands), l => drawLine(l))
   }
 }
 
