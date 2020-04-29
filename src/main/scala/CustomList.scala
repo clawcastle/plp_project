@@ -5,6 +5,13 @@ sealed abstract class CustomList[T] { self =>
 
   def length(): Int = lengthRec(self, 0)
 
+//  def append[T](element: T): CustomList[T] = Cons(element, self);
+//
+//  def appendIf[T](element: T, predicate: () => Boolean): CustomList[T] = predicate() match {
+//    case true => Cons(element, self);
+//    case false => self;
+//  }
+
   private def applyRec(i: Int, list: CustomList[T]): T = (list, i == 0) match {
     case (Nil(), true | false) => throw new IndexOutOfBoundsException()
     case (Cons(_,tail), false) => applyRec(i - 1, tail)
@@ -21,6 +28,18 @@ object CustomList {
   def map[T1, T2](list: CustomList[T1], func: T1 => T2): CustomList[T2] = list match {
     case Nil() => Nil()
     case Cons(head, tail) => Cons(func(head), map(tail, func))
+  }
+
+  def append[T](list: CustomList[T], element: T): CustomList[T] = Cons(element, list);
+
+  def appendIf[T](list: CustomList[T], element: T, predicate: () => Boolean): CustomList[T] = predicate() match {
+    case true => append(list, element);
+    case false => list;
+  }
+
+  def merge[T](list1: CustomList[T], list2: CustomList[T]): CustomList[T] = list1 match {
+    case Nil() => list2
+    case Cons(head, tail) => Cons(head, merge(tail, list2))
   }
 
   def foldl[T1, T2](list: CustomList[T1], seed: T2, func: (T1,T2) => T2): T2 = list match {
