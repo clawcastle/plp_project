@@ -9,7 +9,10 @@ object Main extends App {
   val drawingArea = createDrawingArea()
   val mainPanel = new JPanel(new GridBagLayout())
   val command = "(LINE (0 0) (100 100))"
-  val coords = draw.drawCircle(100,100,50)
+
+  var coords: CustomList[(Int,Int)] = Nil[(Int,Int)]();
+  CustomList.range(1, 10).map(x => draw.drawCircle((x * 10) + 100, (x * 10) + 100, 100)).forEach(x => coords = coords.merge(x))
+  //var coords = draw.drawCircle(100,100,50).merge(draw.drawCircle(150, 150, 80)).merge(draw.drawCircle(75, 75, 40))
   //val coords = commandParser.parseCommand(command)
   //val coords = draw.drawLine(0, 0, 200, 200)
   //mainPanel.setBackground(Color.red)
