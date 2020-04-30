@@ -66,7 +66,7 @@ object CustomList {
     case Cons(head, tail) => Cons(func(head), map(tail, func))
   }
 
-  def range(start: Int, end: Int): CustomList[Int] = (start == end) match {
+  def range(start: Int, end: Int): CustomList[Int] = (start > end) match {
     case true => Nil()
     case false => Cons(start, range(start + 1, end))
   }
