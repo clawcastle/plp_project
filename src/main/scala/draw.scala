@@ -30,13 +30,6 @@ object draw {
       .appendIf((x + centre_x, -y + centre_y), () => radius > 0)
       .appendIf((y + centre_x, x + centre_y), () => radius > 0)
       .appendIf((-y + centre_x, x + centre_y), () => radius > 0)
-//    coords.append((x + centre_x, y + centre_y)).appendIf((x + centre_x, -y + centre_y), () => radius > 0).appendIf((y + centre_x, x + centre_y), () => radius > 0).appendIf((-y + centre_x, x + centre_y), () => radius > 0)
-//    coords = CustomList.append(coords, (x + centre_x, y + centre_y));
-//
-//    coords = CustomList.appendIf(coords, (x + centre_x, -y + centre_y), () => radius > 0);
-//    coords = CustomList.appendIf(coords, (y + centre_x, x + centre_y), () => radius > 0);
-//    coords = CustomList.appendIf(coords, (-y + centre_x, x + centre_y), () => radius > 0);
-
 
     return drawCircleRec(centre_x, centre_y, radius, x, y+1, () => 1 - radius, coords);
   }
