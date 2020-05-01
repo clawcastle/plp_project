@@ -36,6 +36,13 @@ class UIAssembler extends KeyListener {
 
   def createDrawingArea(): CustomCanvas = {
     val c = new CustomCanvas()
+    var coords: CustomList[(Int,Int)] = Nil();
+    CustomList.range(1, 25).map(x => draw.drawCircle((x*10) + 100, (x*10) + 100, 100)).forEach(list => {
+      coords = coords.merge(list);
+    })
+
+    c.paintPublic(coords)
+
     c
   }
 

@@ -1,9 +1,52 @@
 import scala.collection.immutable
 
-sealed abstract class CustomList[T] { self =>
-  def apply(i: Int): T = applyRec(i, self)
+sealed abstract class CustomList[T] {
+  def apply(i: Int): T = applyRec(i, this)
 
-  def length(): Int = lengthRec(self, 0)
+  def length(): Int = lengthRec(this, 0)
+
+  def append(element: T): CustomList[T] = Cons(element, this);
+
+  def appendIf(element: T, predicate: () => Boolean): CustomList[T] = predicate() match {
+    case true => append(element);
+    case false => this;
+  }
+
+  def merge(list2: CustomList[T]): CustomList[T] = mergeRec(this, list2)
+
+  def mergeIf(list2: CustomList[T], predicate: () => Boolean): CustomList[T] = predicate() match {
+    case true => mergeRec(this, list2)
+    case false => this
+  }
+
+  def map[T2](func: T => T2): CustomList[T2] = mapRec(this, func)
+
+  def any(predicate: T => Boolean): Boolean = anyRec(this, predicate)
+
+  def forEach(func: T => Unit): Unit = forEachRec(this, func)
+
+  private def forEachRec(list: CustomList[T], func: T => Unit): Unit = list match {
+    case Nil() => ();
+    case Cons(head, tail) => {
+      func(head);
+      forEachRec(tail, func);
+    }
+  }
+
+  private def anyRec(list: CustomList[T], predicate: T => Boolean): Boolean = list match {
+    case Nil() => false
+    case Cons(head, tail) => predicate(head) || anyRec(tail, predicate)
+  }
+
+  private def mergeRec(list1: CustomList[T], list2: CustomList[T]): CustomList[T] = list1 match {
+    case Nil() => list2
+    case Cons(head, tail) => Cons(head, mergeRec(tail, list2))
+  }
+
+  private def mapRec[T2](list: CustomList[T], func: T => T2): CustomList[T2] = list match {
+    case Nil() => Nil()
+    case Cons(head, tail) => Cons(func(head), mapRec(tail, func))
+  }
 
   private def applyRec(i: Int, list: CustomList[T]): T = (list, i == 0) match {
     case (Nil(), true | false) => throw new IndexOutOfBoundsException()
@@ -21,6 +64,23 @@ object CustomList {
   def map[T1, T2](list: CustomList[T1], func: T1 => T2): CustomList[T2] = list match {
     case Nil() => Nil()
     case Cons(head, tail) => Cons(func(head), map(tail, func))
+  }
+
+  def range(start: Int, end: Int): CustomList[Int] = (start > end) match {
+    case true => Nil()
+    case false => Cons(start, range(start + 1, end))
+  }
+
+  def append[T](list: CustomList[T], element: T): CustomList[T] = Cons(element, list);
+
+  def appendIf[T](list: CustomList[T], element: T, predicate: () => Boolean): CustomList[T] = predicate() match {
+    case true => append(list, element);
+    case false => list;
+  }
+
+  def merge[T](list1: CustomList[T], list2: CustomList[T]): CustomList[T] = list1 match {
+    case Nil() => list2
+    case Cons(head, tail) => Cons(head, merge(tail, list2))
   }
 
   def foldl[T1, T2](list: CustomList[T1], seed: T2, func: (T1,T2) => T2): T2 = list match {
