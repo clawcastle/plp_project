@@ -22,7 +22,7 @@ object draw {
     }
   }
 
-  def drawCircle(centre_x: Int, centre_y: Int, radius: Int): CustomList[(Int,Int)] = {
+  def drawCircle(centre_x: Int, centre_y: Int, radius: Int): CustomList[Coordinate] = {
     var x = radius;
     var y = 0;
 
@@ -31,6 +31,6 @@ object draw {
       .appendIf((y + centre_x, x + centre_y), () => radius > 0)
       .appendIf((-y + centre_x, x + centre_y), () => radius > 0)
 
-    return drawCircleRec(centre_x, centre_y, radius, x, y+1, () => 1 - radius, coords);
+    return drawCircleRec(centre_x, centre_y, radius, x, y+1, () => 1 - radius, coords).map(coordinate => new Coordinate(coordinate._1, coordinate._2));
   }
 }

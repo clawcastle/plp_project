@@ -1,4 +1,4 @@
-import java.awt.event.{KeyEvent, KeyListener}
+import java.awt.event.{ActionEvent, ActionListener, KeyEvent, KeyListener}
 import java.awt.{Color, Dimension, GridBagConstraints, GridBagLayout}
 import java.awt.BorderLayout
 
@@ -12,6 +12,7 @@ class UIAssembler extends KeyListener {
   val frameDimension = new Dimension(800, 600)
   var textArea: JTextArea = _
   var errorText: JTextPane = _
+  var canvas: CustomCanvas = _
 
   def startUI(): Unit = {
     val frame = createFrame()
@@ -35,15 +36,8 @@ class UIAssembler extends KeyListener {
   }
 
   def createDrawingArea(): CustomCanvas = {
-    val c = new CustomCanvas()
-    var coords: CustomList[(Int,Int)] = Nil();
-    CustomList.range(1, 25).map(x => draw.drawCircle((x*10) + 100, (x*10) + 100, 100)).forEach(list => {
-      coords = coords.merge(list);
-    })
-
-    c.paintPublic(coords)
-
-    c
+    canvas = new CustomCanvas()
+    canvas
   }
 
   def createButtonPanel(): JComponent = {
@@ -51,9 +45,12 @@ class UIAssembler extends KeyListener {
     val clearCanvasButton = new JButton("<html><center>Clear<br>Canvas</html>")
     val clearCommandsButton = new JButton("<html><center>Clear<br>Commands</html>")
     val drawButton = new JButton("Draw")
-    drawButton.setSize(200, 200)
     drawButton.setToolTipText("Ctrl + Enter")
-
+    drawButton.addActionListener(new ActionListener {
+      override def actionPerformed(actionEvent: ActionEvent): Unit = {
+        parseCommands()
+      }
+    })
     buttonPanel.add(clearCanvasButton, BorderLayout.LINE_START)
     buttonPanel.add(clearCommandsButton, BorderLayout.CENTER )
     buttonPanel.add(drawButton, BorderLayout.LINE_END)
@@ -99,10 +96,32 @@ class UIAssembler extends KeyListener {
     if (e.isControlDown) {
       if (e.getKeyCode.equals(KeyEvent.VK_ENTER)){
           if (e.getKeyCode.equals(10)) {
-            commandParser.parseCommands(textArea.getText)
+            parseCommands()
           }
       }
     }
+  }
+
+  def parseCommands() : Unit = {
+    try {
+      var listOfShapes = CommandParser.parseCommands(textArea.getText)
+      drawShapes(listOfShapes)
+    } catch {
+      case e: Exception => updateErrorText(e)
+    }
+  }
+
+  def updateErrorText(e : Exception) : Unit = {
+    errorText.setText(e.getMessage)
+  }
+
+  def drawShapes(shapes : CustomList[CustomList[Coordinate]]) : Unit = {
+    var allCoords : CustomList[Coordinate] = Nil()
+    for(x <- 0 until shapes.length()){
+        allCoords = allCoords.merge(shapes(x))
+    }
+
+    canvas.paintPublic(allCoords)
   }
 
   def keyTyped(e: KeyEvent): Unit = {

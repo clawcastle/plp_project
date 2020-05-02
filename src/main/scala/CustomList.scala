@@ -132,9 +132,9 @@ object CustomList {
     case Cons(head, tail) => if (predicate(head)) filterRec(tail, predicate, () => Cons(head, cont())) else filterRec(tail, predicate, () => cont())
   }
 
-  def fromScalaList[T](scalaList: List[T]): CustomList[T] = scalaList.reverse match {
-    case immutable.Nil => Nil()
+  def fromScalaList[T](scalaList: List[T]): CustomList[T] = scalaList match {
     case ::(head, next) => Cons(head, fromScalaList(next))
+    case immutable.Nil => Nil()
   }
 }
 
