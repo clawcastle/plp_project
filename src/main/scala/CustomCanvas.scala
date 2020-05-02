@@ -6,8 +6,6 @@ import javax.swing.JPanel
 class CustomCanvas extends JPanel {
   var coordinates: CustomList[Coordinate] = Nil()
 
-  var img : Image = new BufferedImage(200, 200, 1);
-
   override def paintComponent(g : Graphics): Unit = {
     super.paintComponent(g)
     for(i <- 0 until coordinates.length()) {
