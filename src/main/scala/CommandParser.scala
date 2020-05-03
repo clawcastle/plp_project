@@ -50,37 +50,39 @@ object CommandParser {
   def createCircle(listOfParams: CustomList[String], boundary: Boundary) : CanvasElement = {
     var list = listOfParams.map(str => str.replace(" ", "").toInt)
     var coordinates = CustomList.filter(draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
-    return new Circle(false, Color.BLACK, coordinates)
+    return new Circle(coordinates)
   }
 
   def createLine(listOfParams: CustomList[String], boundary: Boundary) : CanvasElement = {
     var list = listOfParams.map(str => str.replace(" ", "").toInt)
     var coordinates = CustomList.filter(draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
-    return new Line(false, Color.BLACK, coordinates)
+    return new Line(coordinates)
   }
 
   def createRectangle(listOfParams: CustomList[String], boundary: Boundary) : CanvasElement = {
     var list = listOfParams.map(str => str.replace(" ", "").toInt)
     var coordinates = CustomList.filter(draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
-    return new Rectangle(false, Color.BLACK, coordinates)
+    return new Rectangle(coordinates)
   }
 
   def createBoundingBox(listOfParams: CustomList[String]) : CanvasElement = {
     var list = listOfParams.map(str => str.replace(" ", "").toInt)
     var coordinates = draw.drawRectangle(list(0), list(1), list(2), list(3))
-    return new BoundingBox(false, Color.YELLOW, coordinates)
+    return new BoundingBox(coordinates)
   }
 }
 
 class Coordinate(var x : Int, var y : Int) {
 }
 
-abstract class CanvasElement(fill: Boolean, color: Color, val coordinates: CustomList[Coordinate])
+abstract class CanvasElement(val coordinates: CustomList[Coordinate])
 
-class Circle(var fill: Boolean, var color: Color, coordinates: CustomList[Coordinate]) extends CanvasElement(fill, color, coordinates)
-class Rectangle(var fill: Boolean, var color: Color, coordinates: CustomList[Coordinate]) extends CanvasElement(fill, color, coordinates)
-class BoundingBox(var fill: Boolean, var color: Color, coordinates: CustomList[Coordinate]) extends CanvasElement(fill, color, coordinates)
-class Line(var fill: Boolean, var color: Color, coordinates: CustomList[Coordinate]) extends CanvasElement(fill, color, coordinates)
-class TextAt(var fill: Boolean, var color: Color, coordinates: CustomList[Coordinate], var text: String) extends CanvasElement(fill, color, coordinates)
+class Circle(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+class Rectangle(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+class BoundingBox(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+class Line(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+class TextAt(coordinates: CustomList[Coordinate], var text: String) extends CanvasElement(coordinates)
+class Fill(coordinatesToBeColored: CustomList[Coordinate], color: Color, elementToBeFilled : CanvasElement) extends CanvasElement(coordinatesToBeColored)
 
 class Boundary(var x0: Int, var y0: Int, var x1: Int, var y1: Int)
+
