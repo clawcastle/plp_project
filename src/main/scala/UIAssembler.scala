@@ -104,8 +104,8 @@ class UIAssembler extends KeyListener {
 
   def parseCommands() : Unit = {
     try {
-      var listOfShapes = CommandParser.parseCommands(textArea.getText)
-      drawShapes(listOfShapes)
+      var listOfCanvasElements = CommandParser.parseCommands(textArea.getText)
+      drawShapes(listOfCanvasElements)
     } catch {
       case e: Exception => updateErrorText(e)
     }
@@ -115,13 +115,8 @@ class UIAssembler extends KeyListener {
     errorText.setText(e.getMessage)
   }
 
-  def drawShapes(shapes : CustomList[CustomList[Coordinate]]) : Unit = {
-    var allCoords : CustomList[Coordinate] = Nil()
-    for(x <- 0 until shapes.length()){
-        allCoords = allCoords.merge(shapes(x))
-    }
-
-    canvas.paintPublic(allCoords)
+  def drawShapes(shapes : CustomList[CanvasElement]) : Unit = {
+    canvas.paintPublic(shapes)
   }
 
   def keyTyped(e: KeyEvent): Unit = {
