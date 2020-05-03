@@ -33,4 +33,12 @@ object draw {
 
     return drawCircleRec(centre_x, centre_y, radius, x, y+1, () => 1 - radius, coords).map(coordinate => new Coordinate(coordinate._1, coordinate._2));
   }
+
+  def fillObject(seed_x: Int, seed_y: Int, color: String, objectCoords: CustomList[Coordinate]): CustomList[Coordinate] =
+  {
+    if(CustomList.find(new Coordinate(seed_x,seed_y),objectCoords))
+      return objectCoords;
+
+    return fillObject(seed_x, seed_y + 1, color, fillObject(seed_x + 1, seed_y, color, fillObject(seed_x, seed_y - 1, color, fillObject(seed_x - 1, seed_y,color, objectCoords.append(new Coordinate(seed_x,seed_y))))));
+  }
 }
