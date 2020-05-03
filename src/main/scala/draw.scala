@@ -66,9 +66,9 @@ object draw {
   }
 
   def fillObject(seed_x: Int, seed_y: Int, color: String, objectCoords: CustomList[Coordinate], fillCoords: CustomList[Coordinate]): CustomList[Coordinate] = {
-    printList(objectCoords)
+    //printList(objectCoords)
     println(seed_x+", "+seed_y)
-    if (CustomList.find(new Coordinate(seed_x, seed_y), objectCoords) || CustomList.find(new Coordinate(seed_x, seed_y), fillCoords))
+    if(objectCoords.find(new Coordinate(seed_x, seed_y)) || fillCoords.find(new Coordinate(seed_x, seed_y)))
       return fillCoords;
 
     return fillObject(seed_x, seed_y + 1, color, objectCoords, fillObject(seed_x + 1, seed_y, color, objectCoords, fillObject(seed_x, seed_y - 1, color, objectCoords, fillObject(seed_x - 1, seed_y, color, objectCoords, fillCoords.append(new Coordinate(seed_x, seed_y))))));

@@ -91,6 +91,10 @@ object CommandParser {
 }
 
 class Coordinate(var x: Int, var y: Int) {
+  override def equals(obj: Any): Boolean = obj match {
+    case o: Coordinate => o.x == x && o.y == y
+    case _ => false
+  }
 }
 
 abstract class CanvasElement(val coordinates: CustomList[Coordinate])

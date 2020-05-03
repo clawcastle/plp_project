@@ -25,6 +25,13 @@ sealed abstract class CustomList[T] {
 
   def forEach(func: T => Unit): Unit = forEachRec(this, func)
 
+  def find(element: T, comparer: (T, T) => Boolean = (e1: T, e2: T) => e1.equals(e2)): Boolean = findRec(element, this, comparer)
+
+  private def findRec(element: T, list: CustomList[T], comparer: (T, T) => Boolean): Boolean = list match {
+    case Nil() => false
+    case Cons(head, tail) => comparer(element, head) || findRec(element, tail, comparer)
+  }
+
   private def forEachRec(list: CustomList[T], func: T => Unit): Unit = list match {
     case Nil() => ();
     case Cons(head, tail) => {
