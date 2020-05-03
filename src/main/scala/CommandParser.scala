@@ -1,38 +1,112 @@
+import java.awt.Color
+import java.lang.reflect.Field
+
 object CommandParser {
   //* Command example:
   // Circle (3, 32, 3)
   // Circle'SPACE'(3,'SPACE'32,'SPACE'3)
-  def parseCommands(commandsString: String): CustomList[CustomList[Coordinate]] = {
+  def parseCommands(commandsString: String): CustomList[CanvasElement] = {
+    var boundingBoxCommand = commandsString
+      .split("\n")(0)
+    if (!boundingBoxCommand.contains("Bounding-Box")) {
+      throw new Exception("Bounding-Box not declared as first command")
+    }
+    var splittedCommand = boundingBoxCommand
+      .replace("Bounding-Box ", "")
+      .replace("(", "")
+      .replace(")", "")
+      .split(',').toList
+    var boundaries = splittedCommand.map(str => str.replace(" ", "").toInt)
+    var boundary = new Boundary(boundaries(0), boundaries(1), boundaries(2), boundaries(3))
+
     return CustomList.fromScalaList(commandsString.replace("(", "").replace(")", "")
       .split("\n").toList)
-      .map(commandStr => mapToShapes(commandStr))
+      .map(commandStr => mapToCanvasElement(commandStr, boundary))
   }
 
-  def mapToShapes(commands: String): CustomList[Coordinate] = commands.split(' ')(0) match {
-    case "Circle" => createCircle(CustomList.fromScalaList(commands.replace("Circle ", "").split(',').toList));
-    case "Fill" => createFillOfObject(CustomList.fromScalaList(commands.replace("Fill ","").split(',').toList));
-    case _ => throw new Exception("Unknown shape")
+  def exceedsBoundary(boundary: Boundary, coordinate: Coordinate): Boolean = {
+    if (coordinate.x > boundary.x0 && coordinate.x < boundary.x1 &&
+      coordinate.y > boundary.y0 && coordinate.y < boundary.y1)
+      return true;
+
+    return false;
   }
 
-  def createFillOfObject(listOfParams: CustomList[String]) : CustomList[Coordinate] = {
-    var color = listOfParams.asInstanceOf[Cons[String]].head;
-    var objectToFill = listOfParams.asInstanceOf[Cons[String]].tail;
-    var objectCoordinates = mapToShapes(objectToFill.asInstanceOf[CustomList[String]].toString);
+  def createText(value: CustomList[String]): CanvasElement = {
+    var list = value.map(str => str.replace(" ", ""))
+    var coord = new Coordinate(list(0).toInt, list(1).toInt)
+    var coordinates = Cons(coord, Nil())
+    return new TextAt(false, Color.BLACK, coordinates, list(2))
+  }
 
-    draw.fillObject(100,100,color,objectCoordinates);
+  def mapToCanvasElement(command: String, boundary: Boundary): CanvasElement = command.split(' ')(0) match {
+    case "Bounding-Box" => createBoundingBox(CustomList.fromScalaList(command.replace("Bounding-Box ", "").split(',').toList))
+    case "Circle" => createCircle(CustomList.fromScalaList(command.replace("Circle ", "").split(',').toList), boundary)
+    case "Line" => createLine(CustomList.fromScalaList(command.replace("Line ", "").split(',').toList), boundary)
+    case "Rectangle" => createRectangle(CustomList.fromScalaList(command.replace("Rectangle ", "").split(',').toList), boundary)
+    case "Text-At" => createText(CustomList.fromScalaList(command.replace("Text-At ", "").split(',').toList))
+    case "Fill" => createFillOfObject(CustomList.fromScalaList(command.replace("Fill ", "").split(',').toList), boundary)
+    case _ => throw new Exception("Unknown command: " + command)
+  }
+
+  def createFillOfObject(listOfParams: CustomList[String], boundary: Boundary): Fill = {
+    var color = listOfParams.asInstanceOf[Cons[String]].head
+    var objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
+    var canvas = mapToCanvasElement(toStringList(objectToFill, ""), boundary)
+
+    var res = CustomList.filter(draw.fillObject(100, 100, color, canvas.coordinates),coordinate => exceedsBoundary(boundary,coordinate))
+
+    return new Fill(res,Color.getColor(color),canvas)
+
 
   }
 
   private def toStringList(listOfString: CustomList[String], str: String): String = {
     case Nil() => str;
-    case Cons(head : String,tail : CustomList[String]) => toStringList(tail,str.concat(head))
+    case Cons(head: String, tail: CustomList[String]) => toStringList(tail, str.concat(head))
   }
 
-  def createCircle(listOfParams: CustomList[String]) : CustomList[Coordinate] = {
+  def createCircle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
     var list = listOfParams.map(str => str.replace(" ", "").toInt)
-    draw.drawCircle(list(0), list(1), list(2))
+    var coordinates = CustomList.filter(draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
+    return new Circle(coordinates)
+  }
+
+  def createLine(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
+    var list = listOfParams.map(str => str.replace(" ", "").toInt)
+    var coordinates = CustomList.filter(draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    return new Line(coordinates)
+  }
+
+  def createRectangle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
+    var list = listOfParams.map(str => str.replace(" ", "").toInt)
+    var coordinates = CustomList.filter(draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    return new Rectangle(coordinates)
+  }
+
+  def createBoundingBox(listOfParams: CustomList[String]): CanvasElement = {
+    var list = listOfParams.map(str => str.replace(" ", "").toInt)
+    var coordinates = draw.drawRectangle(list(0), list(1), list(2), list(3))
+    return new BoundingBox(coordinates)
   }
 }
 
-class Coordinate(var x : Int, var y : Int) {
+class Coordinate(var x: Int, var y: Int) {
 }
+
+abstract class CanvasElement(val coordinates: CustomList[Coordinate])
+
+class Circle(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+
+class Rectangle(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+
+class BoundingBox(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+
+class Line(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
+
+class TextAt(coordinates: CustomList[Coordinate], var text: String) extends CanvasElement(coordinates)
+
+class Fill(val coordinatesToBeColored: CustomList[Coordinate], val color: Color, val elementToBeFilled: CanvasElement) extends CanvasElement(coordinatesToBeColored)
+
+class Boundary(var x0: Int, var y0: Int, var x1: Int, var y1: Int)
+
