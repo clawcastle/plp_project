@@ -52,9 +52,28 @@ object CommandParser {
   def createFillOfObject(listOfParams: CustomList[String], boundary: Boundary): Fill = {
     var color = listOfParams.asInstanceOf[Cons[String]].head
     var objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
-    var canvas = mapToCanvasElement(toStringList(objectToFill, ""), boundary)
+    var objectToFillAsString = toStringList(objectToFill, "")
+    var canvas = mapToCanvasElement(objectToFillAsString, boundary)
 
-    var res = CustomList.filter(draw.fillObject(105, 115, color, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
+    var seed_x: Int = 0
+    var seed_y: Int = 0
+    val typeOfCanvas = canvas.getClass().getName()
+    typeOfCanvas match {
+      case "Rectangle" =>
+        val listOfParams = objectToFillAsString.replace("Rectangle ", "").split(',').toList
+        val list = listOfParams.map(str => str.replace(" ", "").toInt)
+        var average = (list(0)+list(2))/2
+        seed_x = Math.round((list(0)+list(2))/2)
+        seed_y = Math.round((list(1)+list(3))/2)
+      case "Circle" =>
+        val listOfParams = objectToFillAsString.replace("Circle ", "").split(',').toList
+        val list = listOfParams.map(str => str.replace(" ", "").toInt)
+        seed_x = list(0)
+        seed_y = list(1)
+      case _ => throw new Exception("Not supported shape"+typeOfCanvas)
+    }
+
+    var res = CustomList.filter(draw.fillObject(seed_x, seed_y, color, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
 
     return new Fill(res,Color.getColor(color),canvas)
 
