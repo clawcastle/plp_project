@@ -36,7 +36,7 @@ object CommandParser {
     var list = value.map(str => str.replace(" ", ""))
     var coord = new Coordinate(list(0).toInt, list(1).toInt)
     var coordinates = Cons(coord, Nil())
-    return new TextAt(false, Color.BLACK, coordinates, list(2))
+    return new TextAt(coordinates, list(2))
   }
 
   def mapToCanvasElement(command: String, boundary: Boundary): CanvasElement = command.split(' ')(0) match {
@@ -54,16 +54,15 @@ object CommandParser {
     var objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
     var canvas = mapToCanvasElement(toStringList(objectToFill, ""), boundary)
 
-    var res = CustomList.filter(draw.fillObject(100, 100, color, canvas.coordinates),coordinate => exceedsBoundary(boundary,coordinate))
+    var res = CustomList.filter(draw.fillObject(105, 115, color, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
 
     return new Fill(res,Color.getColor(color),canvas)
 
-
   }
 
-  private def toStringList(listOfString: CustomList[String], str: String): String = {
+  private def toStringList(listOfString: CustomList[String], str: String): String = listOfString match {
     case Nil() => str;
-    case Cons(head: String, tail: CustomList[String]) => toStringList(tail, str.concat(head))
+    case Cons(head: String, tail: CustomList[String]) => toStringList(tail, str.concat(head+","))
   }
 
   def createCircle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
