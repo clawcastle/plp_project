@@ -5,11 +5,30 @@ object CommandParser {
   def parseCommands(commandsString: String): CustomList[CustomList[Coordinate]] = {
     return CustomList.fromScalaList(commandsString.replace("(", "").replace(")", "")
       .split("\n").toList)
-      .map(commandStr => mapToShapes(commandStr))
+      .map(commandStr => mapToShapes(commandStr)).map(shape => filterBoundingBox(commandsString.split("\n")(0), shape))
+  }
+
+  def filterBoundingBox(command: String, shape: CustomList[Coordinate]): CustomList[Coordinate] = {
+    var splittedCommand = command
+      .replace("Bounding-Box ", "")
+      .replace("(", "")
+      .replace(")", "")
+      .split(',').toList
+    var boundary = splittedCommand.map(str => str.replace(" ", "").toInt)
+    return CustomList.filter(shape, coordinate => exceedsBoundary(boundary.head, boundary(1), boundary(2), boundary(3), coordinate))
+  }
+
+  def exceedsBoundary(x0: Int, y0: Int, x1: Int, y1: Int, coordinate: Coordinate): Boolean = {
+    if (coordinate.x > x0-1 && coordinate.x < x1+1 &&
+      coordinate.y > y0-1 && coordinate.y < y1+1)
+      return true;
+
+    return false;
   }
 
   def mapToShapes(commands: String): CustomList[Coordinate] = commands.split(' ')(0) match {
-    case "Circle" => createCircle(CustomList.fromScalaList(commands.replace("Circle ", "").split(',').toList));
+    case "Bounding-Box" => createRectangle(CustomList.fromScalaList(commands.replace("Bounding-Box ", "").split(',').toList))
+    case "Circle" => createCircle(CustomList.fromScalaList(commands.replace("Circle ", "").split(',').toList))
     case "Line" => createLine(CustomList.fromScalaList(commands.replace("Line ", "").split(',').toList))
     case "Rectangle" => createRectangle(CustomList.fromScalaList(commands.replace("Rectangle ", "").split(',').toList))
     case _ => throw new Exception("Unknown shape")

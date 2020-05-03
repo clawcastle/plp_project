@@ -125,11 +125,15 @@ object CustomList {
     case Cons(head, tail) =>predicate(head) && all(tail, predicate)
   }
 
-  def filter[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(filterRec(list, predicate, () => Nil()))
+  def filter[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = filterRec(list, predicate, () => Nil())
 
   private def filterRec[T](list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
-    case Nil() => cont()
-    case Cons(head, tail) => if (predicate(head)) filterRec(tail, predicate, () => Cons(head, cont())) else filterRec(tail, predicate, () => cont())
+    case Nil() => Nil()
+    case Cons(head, tail) => if (predicate(head)) {
+      Cons(head, filter(tail, predicate))
+    } else {
+      filter(tail, predicate)
+    }
   }
 
   def fromScalaList[T](scalaList: List[T]): CustomList[T] = scalaList match {
