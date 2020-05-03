@@ -9,13 +9,16 @@ object CommandParser {
   }
 
   def filterBoundingBox(command: String, shape: CustomList[Coordinate]): CustomList[Coordinate] = {
-    var splittedCommand = command
-      .replace("Bounding-Box ", "")
-      .replace("(", "")
-      .replace(")", "")
-      .split(',').toList
-    var boundary = splittedCommand.map(str => str.replace(" ", "").toInt)
-    return CustomList.filter(shape, coordinate => exceedsBoundary(boundary.head, boundary(1), boundary(2), boundary(3), coordinate))
+    if (command.contains("Bounding-Box")) {
+      var splittedCommand = command
+        .replace("Bounding-Box ", "")
+        .replace("(", "")
+        .replace(")", "")
+        .split(',').toList
+      var boundary = splittedCommand.map(str => str.replace(" ", "").toInt)
+      return CustomList.filter(shape, coordinate => exceedsBoundary(boundary.head, boundary(1), boundary(2), boundary(3), coordinate))
+    }
+    else throw new Exception("Bounding-Box not declared as first command")
   }
 
   def exceedsBoundary(x0: Int, y0: Int, x1: Int, y1: Int, coordinate: Coordinate): Boolean = {
