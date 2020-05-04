@@ -1,27 +1,26 @@
 import java.awt.event.{ActionEvent, ActionListener, KeyEvent, KeyListener}
-import java.awt.{Color, Dimension, GridBagConstraints, GridBagLayout}
-import java.awt.BorderLayout
+import java.awt._
 
-import javax.swing._
-import javax.swing.BorderFactory
-import javax.swing.JComponent
-import javax.swing.JPanel
+import javax.swing.{BorderFactory, JComponent, JPanel, _}
 
-class UIAssembler extends KeyListener {
+class UIAssembler {
   val gbc = new GridBagConstraints()
+  val normalKeyListener = new NormalDrawKeyListener
+  val autoKeyListener = new AutoDrawKeyListener
   val frameDimension = new Dimension(800, 600)
   var textArea: JTextArea = _
   var errorText: JTextPane = _
   var canvas: CustomCanvas = _
+  var drawButton: JButton = _
 
   def startUI(): Unit = {
     val frame = createFrame()
 
     val mainPanel = new JPanel(new GridBagLayout())
 
-    addComp(mainPanel, createDrawingArea(), x = 0, y = 0, gWidth = 1, gHeight = 1, GridBagConstraints.BOTH, weightx = 1, weighty = 0.9)
-    addComp(mainPanel, createRightPanel(), x = 1, y = 0, gWidth = 1, gHeight = 2, GridBagConstraints.BOTH, weightx = 0, weighty = 1)
-    addComp(mainPanel, createErrorArea(), x = 0, y = 1, gWidth = 1, gHeight = 1, GridBagConstraints.BOTH, weightx = 1, weighty = 0.1)
+    addComp(mainPanel, createDrawingArea(), gbc, x = 0, y = 0, gWidth = 1, gHeight = 1, GridBagConstraints.BOTH, weightx = 1, weighty = 0.9)
+    addComp(mainPanel, createRightPanel(), gbc, x = 1, y = 0, gWidth = 1, gHeight = 2, GridBagConstraints.BOTH, weightx = 0, weighty = 1)
+    addComp(mainPanel, createErrorArea(), gbc, x = 0, y = 1, gWidth = 1, gHeight = 1, GridBagConstraints.BOTH, weightx = 1, weighty = 0.1)
 
     mainPanel.setBorder(BorderFactory.createEmptyBorder())
     frame.add(mainPanel)
@@ -70,12 +69,12 @@ class UIAssembler extends KeyListener {
   }
 
   def createDrawBtn(): JButton = {
-    val drawBtn = new JButton("Draw")
-    drawBtn.setToolTipText("Ctrl + Enter")
-    drawBtn.addActionListener((_: ActionEvent) => {
+    drawButton = new JButton("Draw")
+    drawButton.setToolTipText("Ctrl + Enter")
+    drawButton.addActionListener((_: ActionEvent) => {
       parseCommands()
     })
-    drawBtn
+    drawButton
   }
 
   def clearCanvas(): Unit = {
@@ -87,18 +86,40 @@ class UIAssembler extends KeyListener {
   }
 
   def createRightPanel(): JComponent = {
-    val rightPanel = new JPanel(new BorderLayout(10, 10))
-    rightPanel.add(createTextArea(), BorderLayout.CENTER)
-    rightPanel.add(createButtonPanel(), BorderLayout.SOUTH)
+    val rightPanel = new JPanel(new GridBagLayout())
+    val gbc = new GridBagConstraints()
+
+    addComp(rightPanel, createTextArea(), gbc, x = 0, y = 0, gWidth = 1, gHeight = 2, GridBagConstraints.BOTH, weightx = 1, weighty = 1)
+    gbc.anchor = GridBagConstraints.WEST;
+    addComp(rightPanel, createCheckBox(), gbc, x = 0, y = 3, gWidth = 1, gHeight = 1, GridBagConstraints.NONE, weightx = 1, weighty = 0)
+    gbc.anchor = GridBagConstraints.CENTER;
+    addComp(rightPanel, createButtonPanel(), gbc, x = 0, y = 4, gWidth = 1, gHeight = 1, GridBagConstraints.NONE, weightx = 1, weighty = 0)
+
     rightPanel.setBorder(BorderFactory.createTitledBorder("Command window"))
     rightPanel.setOpaque(true)
     rightPanel.setBackground(Color.WHITE)
     rightPanel
   }
 
+  def createCheckBox(): JCheckBox = {
+    val checkBox = new JCheckBox("Enable auto-draw")
+    checkBox.addActionListener((_: ActionEvent) => {
+      if (checkBox.isSelected) {
+        textArea.removeKeyListener(normalKeyListener)
+        textArea.addKeyListener(autoKeyListener)
+        drawButton.setEnabled(false)
+      } else {
+        textArea.removeKeyListener(autoKeyListener)
+        textArea.addKeyListener(normalKeyListener)
+        drawButton.setEnabled(true)
+      }
+    })
+    checkBox
+  }
+
   def createTextArea(): JComponent = {
     textArea = new JTextArea()
-    textArea.addKeyListener(this)
+    textArea.addKeyListener(normalKeyListener)
     textArea.setLineWrap(true)
     val scrollPane = new JScrollPane(textArea)
     scrollPane
@@ -121,20 +142,10 @@ class UIAssembler extends KeyListener {
     errorText.setText(text)
   }
 
-  def keyReleased(e: KeyEvent): Unit = {
-    if (e.isControlDown) {
-      if (e.getKeyCode.equals(KeyEvent.VK_ENTER)) {
-        if (e.getKeyCode.equals(10)) {
-          parseCommands()
-        }
-      }
-    }
-  }
-
   def parseCommands(): Unit = {
     try {
-      var listOfCanvasElements = CommandParser.parseCommands(textArea.getText)
-      drawShapes(listOfCanvasElements)
+      errorText.setText("")
+      drawShapes(CommandParser.parseCommands(textArea.getText))
     } catch {
       case e: Exception => updateErrorText(e)
     }
@@ -148,15 +159,7 @@ class UIAssembler extends KeyListener {
     canvas.paintPublic(shapes)
   }
 
-  def keyTyped(e: KeyEvent): Unit = {
-    //Do nothing
-  }
-
-  def keyPressed(e: KeyEvent): Unit = {
-    //Do nothing
-  }
-
-  private def addComp(panel: JPanel, comp: JComponent, x: Int, y: Int, gWidth: Int, gHeight: Int, fill: Int, weightx: Double, weighty: Double): Unit = {
+  private def addComp(panel: JPanel, comp: JComponent, gbc: GridBagConstraints, x: Int, y: Int, gWidth: Int, gHeight: Int, fill: Int, weightx: Double, weighty: Double): Unit = {
     gbc.gridx = x
     gbc.gridy = y
     gbc.gridwidth = gWidth
@@ -167,4 +170,40 @@ class UIAssembler extends KeyListener {
     panel.add(comp, gbc)
   }
 
+  class AutoDrawKeyListener extends KeyListener {
+    def keyReleased(e: KeyEvent): Unit = {
+      parseCommands()
+    }
+
+    def keyTyped(e: KeyEvent): Unit = {
+      //Do nothing
+    }
+
+    def keyPressed(e: KeyEvent): Unit = {
+      //Do nothing
+    }
+  }
+
+  class NormalDrawKeyListener extends KeyListener {
+    def keyReleased(e: KeyEvent): Unit = {
+      if (e.isControlDown) {
+        if (e.getKeyCode.equals(KeyEvent.VK_ENTER)) {
+          if (e.getKeyCode.equals(10)) {
+            parseCommands()
+          }
+        }
+      }
+    }
+
+    def keyTyped(e: KeyEvent): Unit = {
+      //Do nothing
+    }
+
+    def keyPressed(e: KeyEvent): Unit = {
+      //Do nothing
+    }
+  }
+
 }
+
+
