@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
 class CustomCanvas extends JPanel {
+
   var canvasElements: CustomList[CanvasElement] = Nil()
 
   override def paintComponent(g : Graphics): Unit = {
@@ -28,4 +29,10 @@ class CustomCanvas extends JPanel {
     canvasElements = elements;
     repaint()
   }
+
+  def clear(): Unit = {
+    canvasElements = Nil()
+    repaint()
+  }
+
 }

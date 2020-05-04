@@ -35,7 +35,7 @@ object CommandParser {
     var list = value.map(str => str.replace(" ", ""))
     var coord = new Coordinate(list(0).toInt, list(1).toInt)
     var coordinates = Cons(coord, Nil())
-    return new TextAt(false, Color.BLACK, coordinates, list(2))
+    return new TextAt(coordinates, list(2))
   }
 
   def mapToCanvasElement(command: String, boundary: Boundary): CanvasElement = command.split(' ')(0) match {
