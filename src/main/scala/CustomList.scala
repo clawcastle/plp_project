@@ -25,6 +25,13 @@ sealed abstract class CustomList[T] {
 
   def forEach(func: T => Unit): Unit = forEachRec(this, func)
 
+  def reduce[T2](seed: T2, func: (T,T2) => T2): T2 = reduceRec(this, seed, func)
+
+  private def reduceRec[T2](list: CustomList[T], seed: T2, func: (T,T2) => T2): T2 = list match {
+    case Nil() => seed
+    case Cons(head, tail) => reduceRec(tail, func(head, seed), func)
+  }
+
   private def forEachRec(list: CustomList[T], func: T => Unit): Unit = list match {
     case Nil() => ();
     case Cons(head, tail) => {
