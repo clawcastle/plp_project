@@ -92,7 +92,7 @@ object CommandParser {
       var x_high = x1
       var y_low = 200;
       var y_high = y1
-      if(Math.abs(x1 - 200) >= Math.abs(y1 - 200) && x1 < 200) {
+      if((Math.abs(x1 - 200) >= Math.abs(y1 - 200) && x1 < 200) || (Math.abs(x1 - 200) < Math.abs(y1 - 200) && y1 < 200)) {
         x_low = x1
         x_high = 200
         y_low = y1
