@@ -75,32 +75,35 @@ object CommandParser {
     return new BoundingBox(coordinates)
   }
 
+  def lineParams = (x: Int, y: Int, x1: Int, y1: Int) => ((Math.abs(x1 - 200) >= Math.abs(y1 - 200) && x1 < 200) || (Math.abs(x1 - 200) < Math.abs(y1 - 200) && y1 < 200)) match {
+    case true => (x1, y1, x, y)
+    case false => (x, y, x1, y1)
+  }
+
+  def endCoordinates = (percent: Int, radius: Int) => {
+    val deg = percent * (360.0 / 100);
+    val rad = Math.toRadians(deg)
+    val x1 = (200 + radius * Math.cos(rad)).toInt
+    val y1 = (200 + radius * Math.sin(rad)).toInt
+
+    (x1,y1)
+  }
+
+  def mapToLines(x: Int, radius: Int, slices: CustomList[Int], listBuilder: () => CustomList[CustomList[Coordinate]]): CustomList[CustomList[Coordinate]] = slices match {
+    case Nil() => listBuilder()
+    case Cons(head, tail) => {
+      val endCoords = endCoordinates(x + head, radius)
+      val coords = lineParams(200, 200, endCoords._1, endCoords._2)
+      val t = mapToLines(x + head, radius, tail, () => Cons(draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
+      return t
+    }
+  }
+
   def pieChart(radius: Int = 100): CanvasElement = {
-    val slices = Cons(40, Cons(10, Cons(25, Cons(25, Nil()))));
-    var coords = draw.drawCircle(200, 200, radius)
-    var sum = 0;
+    val slices = Cons(9, CustomList.range(1,13))
 
-    //CustomList.range(0, slices.length() - 1).reduce(0, (a: Int, b: CustomList[Coordinate]) => b.merge(draw.drawLine(1,2,3,4)))
-    slices.forEach(slice => {
-      sum = sum + slice;
-      val deg = sum * (360.0 / 100);
-      val rad = Math.toRadians(deg)
-      val x1 = (200 + radius * Math.cos(rad)).toInt
-      val y1 = (200 + radius * Math.sin(rad)).toInt
+    val coords = mapToLines(0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(draw.drawCircle(200, 200, radius))
 
-      var x_low = 200;
-      var x_high = x1
-      var y_low = 200;
-      var y_high = y1
-      if((Math.abs(x1 - 200) >= Math.abs(y1 - 200) && x1 < 200) || (Math.abs(x1 - 200) < Math.abs(y1 - 200) && y1 < 200)) {
-        x_low = x1
-        x_high = 200
-        y_low = y1
-        y_high = 200
-      }
-      var test: CustomList[Coordinate] = draw.drawLine(x_low, y_low, x_high, y_high)
-      coords = coords.merge(test)
-    })
 
     return new Circle(coords);
   }
