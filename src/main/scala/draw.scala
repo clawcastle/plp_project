@@ -45,6 +45,8 @@ object draw {
 
     var coords: CustomList[(Int,Int)] = Cons((x + centre_x, y + centre_y), Nil())
       .appendIf((x + centre_x, -y + centre_y), () => radius > 0)
+      .appendIf((-x + centre_x, y + centre_y), () => radius > 0)
+      .appendIf((y + centre_x, -x + centre_y), () => radius > 0)
       .appendIf((y + centre_x, x + centre_y), () => radius > 0)
       .appendIf((-y + centre_x, x + centre_y), () => radius > 0)
 
