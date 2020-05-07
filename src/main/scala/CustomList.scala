@@ -27,6 +27,14 @@ sealed abstract class CustomList[T] {
 
   def reduce[T2](seed: T2, func: (T,T2) => T2): T2 = reduceRec(this, seed, func)
 
+  def skip(n: Int) = skipRec(this, n)
+
+  private def skipRec(list: CustomList[T], n: Int): CustomList[T] = (n > 0, list) match {
+    case (_, Nil()) => Nil()
+    case (false, Cons(head, tail)) => Cons(head, tail)
+    case (true, Cons(_, tail)) => skipRec(tail, n - 1)
+  }
+
   private def reduceRec[T2](list: CustomList[T], seed: T2, func: (T,T2) => T2): T2 = list match {
     case Nil() => seed
     case Cons(head, tail) => reduceRec(tail, func(head, seed), func)

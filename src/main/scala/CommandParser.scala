@@ -46,7 +46,7 @@ object CommandParser {
     case "Line" => createLine(CustomList.fromScalaList(command.replace("Line ", "").split(',').toList), boundary)
     case "Rectangle" => createRectangle(CustomList.fromScalaList(command.replace("Rectangle ", "").split(',').toList), boundary)
     case "Text-At" => createText(CustomList.fromScalaList(command.replace("Text-At ", "").split(',').toList))
-    case "Pie-Chart" => pieChart()
+    case "Pie-Chart" => createPieChart(CustomList.fromScalaList(command.replace("Pie-Chart ", "").split(',').toList))
     case _ => throw new Exception("Unknown command: " + command)
   }
 
@@ -75,37 +75,40 @@ object CommandParser {
     return new BoundingBox(coordinates)
   }
 
-  def lineParams = (x: Int, y: Int, x1: Int, y1: Int) => ((Math.abs(x1 - 200) >= Math.abs(y1 - 200) && x1 < 200) || (Math.abs(x1 - 200) < Math.abs(y1 - 200) && y1 < 200)) match {
+  def createPieChart(listOfParams: CustomList[String]): CanvasElement = {
+    val params = listOfParams.map(str => str.replace(" ", "").toInt)
+    val radius = params(0)
+    val centre_x = params(1)
+    val centre_y = params(2)
+    val slices = params.skip(3)
+
+    val coords = mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(draw.drawCircle(centre_x, centre_y, radius))
+
+
+    return new Circle(coords);
+  }
+
+  private def lineParams = (x: Int, y: Int, x1: Int, y1: Int) => ((Math.abs(x1 - x) >= Math.abs(y1 - y) && x1 < x) || (Math.abs(x1 - x) < Math.abs(y1 - y) && y1 < y)) match {
     case true => (x1, y1, x, y)
     case false => (x, y, x1, y1)
   }
 
-  def endCoordinates = (percent: Int, radius: Int) => {
+  private def endCoordinates = (x: Int, y: Int, percent: Int, radius: Int) => {
     val deg = percent * (360.0 / 100);
     val rad = Math.toRadians(deg)
-    val x1 = (200 + radius * Math.cos(rad)).toInt
-    val y1 = (200 + radius * Math.sin(rad)).toInt
+    val x1 = (x + radius * Math.cos(rad)).toInt
+    val y1 = (y + radius * Math.sin(rad)).toInt
 
     (x1,y1)
   }
 
-  def mapToLines(x: Int, radius: Int, slices: CustomList[Int], listBuilder: () => CustomList[CustomList[Coordinate]]): CustomList[CustomList[Coordinate]] = slices match {
+  private def mapToLines(x: Int, y: Int, percent: Int, radius: Int, slices: CustomList[Int], listBuilder: () => CustomList[CustomList[Coordinate]]): CustomList[CustomList[Coordinate]] = slices match {
     case Nil() => listBuilder()
     case Cons(head, tail) => {
-      val endCoords = endCoordinates(x + head, radius)
-      val coords = lineParams(200, 200, endCoords._1, endCoords._2)
-      val t = mapToLines(x + head, radius, tail, () => Cons(draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
-      return t
+      val endCoords = endCoordinates(x, y, percent + head, radius)
+      val coords = lineParams(x, y, endCoords._1, endCoords._2)
+      mapToLines(x, y, percent + head, radius, tail, () => Cons(draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
     }
-  }
-
-  def pieChart(radius: Int = 100): CanvasElement = {
-    val slices = Cons(9, CustomList.range(1,13))
-
-    val coords = mapToLines(0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(draw.drawCircle(200, 200, radius))
-
-
-    return new Circle(coords);
   }
 }
 
