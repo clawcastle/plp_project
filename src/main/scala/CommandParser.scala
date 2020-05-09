@@ -51,7 +51,7 @@ object CommandParser {
   }
 
   def createDraw(listOfParams: CustomList[String], boundary: Boundary): DrawObjects = {
-    val color = listOfParams.asInstanceOf[Cons[String]].head
+    val color = listOfParams.asInstanceOf[Cons[String]].head.replace(" ", "")
     val res = listOfParams.asInstanceOf[Cons[String]].tail.map(x => mapToCanvasElement(x,boundary))
 
     new DrawObjects(color,res,Nil())
@@ -59,7 +59,7 @@ object CommandParser {
 
 
   def createFillOfObject(listOfParams: CustomList[String], boundary: Boundary): Fill = {
-    val color = listOfParams.asInstanceOf[Cons[String]].head
+    val color = listOfParams.asInstanceOf[Cons[String]].head.replace(" ", "")
     val objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
     val objectToFillAsString = toStringList(objectToFill, "")
     val canvas = mapToCanvasElement(objectToFillAsString, boundary)
@@ -68,14 +68,14 @@ object CommandParser {
 
     typeOfCanvas match {
       case "Rectangle" =>
-        val listOfParams = objectToFillAsString.replace("Rectangle ", "").split(',').toList
+        val listOfParams = objectToFillAsString.replace("Rectangle", "").split(',').toList
         val list = listOfParams.map(str => str.replace(" ", "").toInt)
         val seed_x = Math.round((list(0)+list(2))/2)
         val seed_y = Math.round((list(1)+list(3))/2)
         val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
         return new Fill(res,color,canvas)
       case "Circle" =>
-        val listOfParams = objectToFillAsString.replace("Circle ", "").split(',').toList
+        val listOfParams = objectToFillAsString.replace("Circle", "").split(',').toList
         val list = listOfParams.map(str => str.replace(" ", "").toInt)
         val seed_x = list(0)
         val seed_y = list(1)
