@@ -74,7 +74,7 @@ object CommandParser {
       case _ => throw new Exception("Not supported shape"+typeOfCanvas)
     }
 
-    val res = CustomList.filter(draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
+    val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
     new Fill(res,color,canvas)
 
   }
@@ -87,26 +87,26 @@ object CommandParser {
 
   def createCircle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
     val list = listOfParams.map(str => str.replace(" ", "").toInt)
-    val coordinates = CustomList.filter(draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
+    val coordinates = CustomList.filter(Draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
 
     new Circle(coordinates)
   }
 
   def createLine(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
     val list = listOfParams.map(str => str.replace(" ", "").toInt)
-    val coordinates = CustomList.filter(draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    val coordinates = CustomList.filter(Draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
     new Line(coordinates)
   }
 
   def createRectangle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
     val list = listOfParams.map(str => str.replace(" ", "").toInt)
-    val coordinates = CustomList.filter(draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    val coordinates = CustomList.filter(Draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
     new Rectangle(coordinates)
   }
 
   def createBoundingBox(listOfParams: CustomList[String]): CanvasElement = {
     val list = listOfParams.map(str => str.replace(" ", "").toInt)
-    val coordinates = draw.drawRectangle(list(0), list(1), list(2), list(3))
+    val coordinates = Draw.drawRectangle(list(0), list(1), list(2), list(3))
     new BoundingBox(coordinates)
   }
 
@@ -117,7 +117,7 @@ object CommandParser {
     val centre_y = params(2)
     val slices = params.skip(3)
 
-    val coords = mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(draw.drawCircle(centre_x, centre_y, radius))
+    val coords = mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(Draw.drawCircle(centre_x, centre_y, radius))
 
 
     new Circle(coords)
@@ -142,7 +142,7 @@ object CommandParser {
     case Cons(head, tail) =>
       val endCoords = endCoordinates(x, y, percent + head, radius)
       val coords = lineParams(x, y, endCoords._1, endCoords._2)
-      mapToLines(x, y, percent + head, radius, tail, () => Cons(draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
+      mapToLines(x, y, percent + head, radius, tail, () => Cons(Draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
   }
 }
 
