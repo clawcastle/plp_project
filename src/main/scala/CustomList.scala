@@ -30,6 +30,8 @@ sealed abstract class CustomList[T] {
   private def findRec(element: T, list: CustomList[T], comparer: (T, T) => Boolean): Boolean = list match {
     case Nil() => false
     case Cons(head, tail) => comparer(element, head) || findRec(element, tail, comparer)
+  }
+  
   def reduce[T2](seed: T2, func: (T,T2) => T2): T2 = reduceRec(this, seed, func)
 
   def skip(n: Int) = skipRec(this, n)
