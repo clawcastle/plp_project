@@ -39,15 +39,24 @@ object CommandParser {
   }
 
   def mapToCanvasElement(command: String, boundary: Boundary): CanvasElement = command.split(' ')(0) match {
-    case "Bounding-Box" => createBoundingBox(CustomList.fromScalaList(command.replace("Bounding-Box ", "").split(',').toList))
-    case "Circle" => createCircle(CustomList.fromScalaList(command.replace("Circle ", "").split(',').toList), boundary)
-    case "Line" => createLine(CustomList.fromScalaList(command.replace("Line ", "").split(',').toList), boundary)
-    case "Rectangle" => createRectangle(CustomList.fromScalaList(command.replace("Rectangle ", "").split(',').toList), boundary)
-    case "Text-At" => createText(CustomList.fromScalaList(command.replace("Text-At ", "").split(',').toList))
-    case "Fill" => createFillOfObject(CustomList.fromScalaList(command.replace("Fill ", "").split(',').toList), boundary)
-    case "Pie-Chart" => createPieChart(CustomList.fromScalaList(command.replace("Pie-Chart ", "").split(',').toList))
+    case "Bounding-Box" => createBoundingBox(CustomList.fromScalaList(command.replace("Bounding-Box", "").split(',').toList))
+    case "Circle" => createCircle(CustomList.fromScalaList(command.replace("Circle", "").split(',').toList), boundary)
+    case "Line" => createLine(CustomList.fromScalaList(command.replace("Line", "").split(',').toList), boundary)
+    case "Rectangle" => createRectangle(CustomList.fromScalaList(command.replace("Rectangle", "").split(',').toList), boundary)
+    case "Text-At" => createText(CustomList.fromScalaList(command.replace("Text-At", "").split(',').toList))
+    case "Fill" => createFillOfObject(CustomList.fromScalaList(command.replace("Fill", "").split(',').toList), boundary)
+    case "Pie-Chart" => createPieChart(CustomList.fromScalaList(command.replace("Pie-Chart", "").split(',').toList))
+    case "Draw" => createDraw(CustomList.fromScalaList(command.replace("Draw", "").split(";").toList),boundary)
     case _ => throw new Exception("Unknown command: " + command)
   }
+
+  def createDraw(listOfParams: CustomList[String], boundary: Boundary): DrawObjects = {
+    val color = listOfParams.asInstanceOf[Cons[String]].head
+    val res = listOfParams.asInstanceOf[Cons[String]].tail.map(x => mapToCanvasElement(x,boundary))
+
+    new DrawObjects(color,res,Nil())
+  }
+
 
   def createFillOfObject(listOfParams: CustomList[String], boundary: Boundary): Fill = {
     val color = listOfParams.asInstanceOf[Cons[String]].head
@@ -163,6 +172,8 @@ class Line(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinate
 class TextAt(coordinates: CustomList[Coordinate], var text: String) extends CanvasElement(coordinates)
 
 class Fill(val coordinatesToBeColored: CustomList[Coordinate], val color: String, val elementToBeFilled: CanvasElement) extends CanvasElement(coordinatesToBeColored)
+
+class DrawObjects(val color: String, val elements: CustomList[CanvasElement], coordinates: CustomList[Coordinate]) extends CanvasElement(coordinates)
 
 class Boundary(var x0: Int, var y0: Int, var x1: Int, var y1: Int)
 
