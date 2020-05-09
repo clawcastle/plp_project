@@ -43,34 +43,22 @@ object draw {
     var x = radius;
     var y = 0;
 
-    var coords: CustomList[(Int, Int)] = Cons((x + centre_x, y + centre_y), Nil())
+    var coords: CustomList[(Int,Int)] = Cons((x + centre_x, y + centre_y), Nil())
       .appendIf((x + centre_x, -y + centre_y), () => radius > 0)
+      .appendIf((-x + centre_x, y + centre_y), () => radius > 0)
+      .appendIf((y + centre_x, -x + centre_y), () => radius > 0)
       .appendIf((y + centre_x, x + centre_y), () => radius > 0)
       .appendIf((-y + centre_x, x + centre_y), () => radius > 0)
 
     return drawCircleRec(centre_x, centre_y, radius, x, y + 1, () => 1 - radius, coords).map(coordinate => new Coordinate(coordinate._1, coordinate._2));
   }
 
-  def printList[T](list: CustomList[Coordinate]): Unit = {
-    if(list.isInstanceOf[Nil[T]]) {
-      return;
-    }
-    println("list")
-    var l = list.asInstanceOf[Cons[T]];
-    while(!l.tail.isInstanceOf[Nil[T]]) {
-      println("coordinate "+l.head.asInstanceOf[Coordinate].x+", "+l.head.asInstanceOf[Coordinate].y)
-      l = l.tail.asInstanceOf[Cons[T]]
-    }
-    println("coordinate "+l.head.asInstanceOf[Coordinate].x+", "+l.head.asInstanceOf[Coordinate].y)
 
-  }
+  def fillObject(seed_x: Int, seed_y: Int, objectCoords: CustomList[Coordinate], fillCoords: CustomList[Coordinate]): CustomList[Coordinate] = {
 
-  def fillObject(seed_x: Int, seed_y: Int, color: String, objectCoords: CustomList[Coordinate], fillCoords: CustomList[Coordinate]): CustomList[Coordinate] = {
-    printList(objectCoords)
-    //println(seed_x+", "+seed_y)
     if(objectCoords.find(new Coordinate(seed_x, seed_y)) || fillCoords.find(new Coordinate(seed_x, seed_y)))
       return fillCoords;
 
-    return fillObject(seed_x, seed_y + 1, color, objectCoords, fillObject(seed_x + 1, seed_y, color, objectCoords, fillObject(seed_x, seed_y - 1, color, objectCoords, fillObject(seed_x - 1, seed_y, color, objectCoords, fillCoords.append(new Coordinate(seed_x, seed_y))))));
+    return fillObject(seed_x, seed_y + 1, objectCoords, fillObject(seed_x + 1, seed_y, objectCoords, fillObject(seed_x, seed_y - 1, objectCoords, fillObject(seed_x - 1, seed_y, objectCoords, fillCoords.append(new Coordinate(seed_x, seed_y))))));
   }
 }

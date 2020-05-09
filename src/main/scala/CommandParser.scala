@@ -58,6 +58,7 @@ object CommandParser {
     var seed_x: Int = 0
     var seed_y: Int = 0
     val typeOfCanvas = canvas.getClass().getName()
+
     typeOfCanvas match {
       case "Rectangle" =>
         val listOfParams = objectToFillAsString.replace("Rectangle ", "").split(',').toList
@@ -73,9 +74,8 @@ object CommandParser {
       case _ => throw new Exception("Not supported shape"+typeOfCanvas)
     }
 
-    var res = CustomList.filter(draw.fillObject(seed_x, seed_y, color, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
-
-    return new Fill(res,Color.getColor(color),canvas)
+    var res = CustomList.filter(draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
+    return new Fill(res,color,canvas)
 
   }
 
@@ -128,7 +128,7 @@ class Line(coordinates: CustomList[Coordinate]) extends CanvasElement(coordinate
 
 class TextAt(coordinates: CustomList[Coordinate], var text: String) extends CanvasElement(coordinates)
 
-class Fill(val coordinatesToBeColored: CustomList[Coordinate], val color: Color, val elementToBeFilled: CanvasElement) extends CanvasElement(coordinatesToBeColored)
+class Fill(val coordinatesToBeColored: CustomList[Coordinate], val color: String, val elementToBeFilled: CanvasElement) extends CanvasElement(coordinatesToBeColored)
 
 class Boundary(var x0: Int, var y0: Int, var x1: Int, var y1: Int)
 
