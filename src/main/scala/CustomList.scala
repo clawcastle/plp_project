@@ -19,7 +19,7 @@ sealed abstract class CustomList[T] {
     case false => this
   }
 
-  def map[T2](func: T => T2): CustomList[T2] = mapRec(this, func)
+  def map[T2](func: T => T2): CustomList[T2] = mapRec(this, func, () => Nil())
 
   def any(predicate: T => Boolean): Boolean = anyRec(this, predicate)
 
@@ -65,9 +65,9 @@ sealed abstract class CustomList[T] {
     case Cons(head, tail) => Cons(head, mergeRec(tail, list2))
   }
 
-  private def mapRec[T2](list: CustomList[T], func: T => T2): CustomList[T2] = list match {
-    case Nil() => Nil()
-    case Cons(head, tail) => Cons(func(head), mapRec(tail, func))
+  private def mapRec[T2](list: CustomList[T], func: T => T2, cont: () => CustomList[T2]): CustomList[T2] = list match {
+    case Nil() => cont()
+    case Cons(head, tail) => mapRec(tail, func, () => Cons(func(head), cont()))
   }
 
   private def applyRec(i: Int, list: CustomList[T]): T = (list, i == 0) match {
