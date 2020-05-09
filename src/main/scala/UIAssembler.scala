@@ -52,10 +52,8 @@ class UIAssembler {
 
   def createClearCommandsBtn(): JButton = {
     val clearCommandsBtn = new JButton("<html><center>Clear<br>Commands</html>")
-    clearCommandsBtn.addActionListener(new ActionListener {
-      override def actionPerformed(actionEvent: ActionEvent): Unit = {
-        clearCommands()
-      }
+    clearCommandsBtn.addActionListener((actionEvent: ActionEvent) => {
+      clearCommands()
     })
     clearCommandsBtn
   }
@@ -78,7 +76,7 @@ class UIAssembler {
   }
 
   def clearCanvas(): Unit = {
-    canvas.clear();
+    canvas.clear()
   }
 
   def clearCommands(): Unit = {
@@ -90,9 +88,9 @@ class UIAssembler {
     val gbc = new GridBagConstraints()
 
     addComp(rightPanel, createTextArea(), gbc, x = 0, y = 0, gWidth = 1, gHeight = 2, GridBagConstraints.BOTH, weightx = 1, weighty = 1)
-    gbc.anchor = GridBagConstraints.WEST;
+    gbc.anchor = GridBagConstraints.WEST
     addComp(rightPanel, createCheckBox(), gbc, x = 0, y = 3, gWidth = 1, gHeight = 1, GridBagConstraints.NONE, weightx = 1, weighty = 0)
-    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.anchor = GridBagConstraints.CENTER
     addComp(rightPanel, createButtonPanel(), gbc, x = 0, y = 4, gWidth = 1, gHeight = 1, GridBagConstraints.NONE, weightx = 1, weighty = 0)
 
     rightPanel.setBorder(BorderFactory.createTitledBorder("Command window"))

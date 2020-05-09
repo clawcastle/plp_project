@@ -1,5 +1,4 @@
-import java.awt.{Color, Graphics, Graphics2D, Image}
-import java.awt.image.BufferedImage
+import java.awt.{Color, Graphics}
 
 import javax.swing.JPanel
 
@@ -14,7 +13,7 @@ class CustomCanvas extends JPanel {
     for (x <- 0 until canvasElements.length()) {
       canvasElements(x) match {
         case at: TextAt =>
-          var textAt = at
+          val textAt = at
           g.drawString(textAt.text, textAt.coordinates(0).x, textAt.coordinates(0).y)
         case fill: Fill =>
           g.setColor(mapToColor(fill.color))
@@ -35,22 +34,22 @@ class CustomCanvas extends JPanel {
   }
 
   def paintPublic(elements: CustomList[CanvasElement]): Unit = {
-    canvasElements = elements;
+    canvasElements = elements
     repaint()
   }
 
   def mapToColor(colorAsString: String) : Color = {
     colorAsString.toLowerCase() match {
-      case "red" => return Color.RED
-      case "blue" => return Color.BLUE
-      case "black" => return Color.BLACK
-      case "green" => return Color.GREEN
-      case "yellow" => return Color.YELLOW
-      case "white" => return Color.WHITE
-      case "orange" => return Color.ORANGE
-      case "gray" => return Color.GRAY
-      case "pink" => return Color.PINK
-      case _ => return Color.BLACK
+      case "red" => Color.RED
+      case "blue" => Color.BLUE
+      case "black" => Color.BLACK
+      case "green" => Color.GREEN
+      case "yellow" => Color.YELLOW
+      case "white" => Color.WHITE
+      case "orange" => Color.ORANGE
+      case "gray" => Color.GRAY
+      case "pink" => Color.PINK
+      case _ => Color.BLACK
     }
   }
   def clear(): Unit = {
