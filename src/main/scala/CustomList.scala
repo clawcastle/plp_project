@@ -21,7 +21,7 @@ sealed abstract class CustomList[T] {
     this
   }
 
-  def map[T2](func: T => T2): CustomList[T2] = mapRec(this, func, () => Nil())
+  def map[T2](func: T => T2): CustomList[T2] = mapRec(this, func, x => x)
 
   def any(predicate: T => Boolean): Boolean = anyRec(this, predicate)
 
@@ -72,9 +72,9 @@ sealed abstract class CustomList[T] {
   }
 
   @scala.annotation.tailrec
-  private def mapRec[T2](list: CustomList[T], func: T => T2, cont: () => CustomList[T2]): CustomList[T2] = list match {
-    case Nil() => cont()
-    case Cons(head, tail) => mapRec(tail, func, () => Cons(func(head), cont()))
+  private def mapRec[T2](list: CustomList[T], func: T => T2, cont: CustomList[T2] => CustomList[T2]): CustomList[T2] = list match {
+    case Nil() => cont(Nil())
+    case Cons(head, tail) => mapRec(tail, func, x => cont(Cons(func(head), x)))
   }
 
   @scala.annotation.tailrec
