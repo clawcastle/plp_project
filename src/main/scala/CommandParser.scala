@@ -1,25 +1,22 @@
-import java.awt.Color
-import java.lang.reflect.Field
-
 object CommandParser {
   //* Command example:
   // Circle (3, 32, 3)
   // Circle'SPACE'(3,'SPACE'32,'SPACE'3)
   def parseCommands(commandsString: String): CustomList[CanvasElement] = {
-    var boundingBoxCommand = commandsString
+    val boundingBoxCommand = commandsString
       .split("\n")(0)
     if (!boundingBoxCommand.contains("Bounding-Box")) {
       throw new Exception("Bounding-Box not declared as first command")
     }
-    var splittedCommand = boundingBoxCommand
+    val splittedCommand = boundingBoxCommand
       .replace("Bounding-Box ", "")
       .replace("(", "")
       .replace(")", "")
       .split(',').toList
-    var boundaries = splittedCommand.map(str => str.replace(" ", "").toInt)
-    var boundary = new Boundary(boundaries(0), boundaries(1), boundaries(2), boundaries(3))
+    val boundaries = splittedCommand.map(str => str.replace(" ", "").toInt)
+    val boundary = new Boundary(boundaries(0), boundaries(1), boundaries(2), boundaries(3))
 
-    return CustomList.fromScalaList(commandsString.replace("(", "").replace(")", "")
+    CustomList.fromScalaList(commandsString.replace("(", "").replace(")", "")
       .split("\n").toList)
       .map(commandStr => mapToCanvasElement(commandStr, boundary))
   }
@@ -27,17 +24,17 @@ object CommandParser {
   def exceedsBoundary(boundary: Boundary, coordinate: Coordinate): Boolean = {
     if (coordinate.x > boundary.x0 && coordinate.x < boundary.x1 &&
       coordinate.y > boundary.y0 && coordinate.y < boundary.y1)
-      return true;
+      return true
 
-    return false;
+    false
   }
 
   def createText(value: CustomList[String]): CanvasElement = {
-    var list = value.map(str => str.replace(" ", ""))
-    var coord = new Coordinate(list(0).toInt, list(1).toInt)
-    var coordinates = Cons(coord, Nil())
+    val list = value.map(str => str.replace(" ", ""))
+    val coord = new Coordinate(list(0).toInt, list(1).toInt)
+    val coordinates = Cons(coord, Nil())
 
-    return new TextAt(coordinates, list(2))
+    new TextAt(coordinates, list(2))
 
   }
 
@@ -53,10 +50,10 @@ object CommandParser {
   }
 
   def createFillOfObject(listOfParams: CustomList[String], boundary: Boundary): Fill = {
-    var color = listOfParams.asInstanceOf[Cons[String]].head
-    var objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
-    var objectToFillAsString = toStringList(objectToFill, "")
-    var canvas = mapToCanvasElement(objectToFillAsString, boundary)
+    val color = listOfParams.asInstanceOf[Cons[String]].head
+    val objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
+    val objectToFillAsString = toStringList(objectToFill, "")
+    val canvas = mapToCanvasElement(objectToFillAsString, boundary)
 
     var seed_x: Int = 0
     var seed_y: Int = 0
@@ -77,39 +74,40 @@ object CommandParser {
       case _ => throw new Exception("Not supported shape"+typeOfCanvas)
     }
 
-    var res = CustomList.filter(draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()),coordinate => exceedsBoundary(boundary,coordinate))
-    return new Fill(res,color,canvas)
+    val res = CustomList.filter(draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
+    new Fill(res,color,canvas)
 
   }
 
+  @scala.annotation.tailrec
   private def toStringList(listOfString: CustomList[String], str: String): String = listOfString match {
     case Nil() => str;
     case Cons(head: String, tail: CustomList[String]) => toStringList(tail, str.concat(head+","))
   }
 
   def createCircle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
-    var list = listOfParams.map(str => str.replace(" ", "").toInt)
-    var coordinates = CustomList.filter(draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val coordinates = CustomList.filter(draw.drawCircle(list(0), list(1), list(2)), coordinate => exceedsBoundary(boundary, coordinate))
 
-    return new Circle(coordinates)
+    new Circle(coordinates)
   }
 
   def createLine(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
-    var list = listOfParams.map(str => str.replace(" ", "").toInt)
-    var coordinates = CustomList.filter(draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
-    return new Line(coordinates)
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val coordinates = CustomList.filter(draw.drawLine(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    new Line(coordinates)
   }
 
   def createRectangle(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
-    var list = listOfParams.map(str => str.replace(" ", "").toInt)
-    var coordinates = CustomList.filter(draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
-    return new Rectangle(coordinates)
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val coordinates = CustomList.filter(draw.drawRectangle(list(0), list(1), list(2), list(3)), coordinate => exceedsBoundary(boundary, coordinate))
+    new Rectangle(coordinates)
   }
 
   def createBoundingBox(listOfParams: CustomList[String]): CanvasElement = {
-    var list = listOfParams.map(str => str.replace(" ", "").toInt)
-    var coordinates = draw.drawRectangle(list(0), list(1), list(2), list(3))
-    return new BoundingBox(coordinates)
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val coordinates = draw.drawRectangle(list(0), list(1), list(2), list(3))
+    new BoundingBox(coordinates)
   }
 
   def createPieChart(listOfParams: CustomList[String]): CanvasElement = {
@@ -122,16 +120,16 @@ object CommandParser {
     val coords = mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(draw.drawCircle(centre_x, centre_y, radius))
 
 
-    return new Circle(coords);
+    new Circle(coords)
   }
 
-  private def lineParams = (x: Int, y: Int, x1: Int, y1: Int) => ((Math.abs(x1 - x) >= Math.abs(y1 - y) && x1 < x) || (Math.abs(x1 - x) < Math.abs(y1 - y) && y1 < y)) match {
+  private def lineParams = (x: Int, y: Int, x1: Int, y1: Int) => Math.abs(x1 - x) >= Math.abs(y1 - y) && x1 < x || Math.abs(x1 - x) < Math.abs(y1 - y) && y1 < y match {
     case true => (x1, y1, x, y)
     case false => (x, y, x1, y1)
   }
 
   private def endCoordinates = (x: Int, y: Int, percent: Int, radius: Int) => {
-    val deg = percent * (360.0 / 100);
+    val deg = percent * 360.0 / 100
     val rad = Math.toRadians(deg)
     val x1 = (x + radius * Math.cos(rad)).toInt
     val y1 = (y + radius * Math.sin(rad)).toInt
@@ -141,11 +139,10 @@ object CommandParser {
 
   private def mapToLines(x: Int, y: Int, percent: Int, radius: Int, slices: CustomList[Int], listBuilder: () => CustomList[CustomList[Coordinate]]): CustomList[CustomList[Coordinate]] = slices match {
     case Nil() => listBuilder()
-    case Cons(head, tail) => {
+    case Cons(head, tail) =>
       val endCoords = endCoordinates(x, y, percent + head, radius)
       val coords = lineParams(x, y, endCoords._1, endCoords._2)
       mapToLines(x, y, percent + head, radius, tail, () => Cons(draw.drawLine(coords._1, coords._2, coords._3, coords._4), listBuilder()))
-    }
   }
 }
 
