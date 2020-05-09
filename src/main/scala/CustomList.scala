@@ -71,6 +71,7 @@ sealed abstract class CustomList[T] {
     case Cons(head, tail) => Cons(head, mergeRec(tail, list2))
   }
 
+  @scala.annotation.tailrec
   private def mapRec[T2](list: CustomList[T], func: T => T2, cont: () => CustomList[T2]): CustomList[T2] = list match {
     case Nil() => cont()
     case Cons(head, tail) => mapRec(tail, func, () => Cons(func(head), cont()))
@@ -165,12 +166,13 @@ object CustomList {
 
   def filter[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = filterRec(list, predicate, () => Nil())
 
+  @scala.annotation.tailrec
   private def filterRec[T](list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
-    case Nil() => Nil()
+    case Nil() => cont()
     case Cons(head, tail) => if (predicate(head)) {
-      Cons(head, filter(tail, predicate))
+      filterRec(tail, predicate, () => Cons(head, cont()))
     } else {
-      filter(tail, predicate)
+      filterRec(tail, predicate, () => cont())
     }
   }
 
