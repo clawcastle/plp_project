@@ -1,14 +1,16 @@
-import java.awt.{Color, Graphics}
+import java.awt.{Color, Dimension, Graphics}
 
 import javax.swing.JPanel
 
 class CustomCanvas extends JPanel {
 
   var canvasElements: CustomList[CanvasElement] = Nil()
+  var gridCoords: CustomList[Coordinate] = Nil()
 
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
 
+    drawGrid(g, 30)
     var allCoords: CustomList[Coordinate] = Nil()
     for (x <- 0 until canvasElements.length()) {
       canvasElements(x) match {
@@ -57,4 +59,28 @@ class CustomCanvas extends JPanel {
     repaint()
   }
 
+  def findGridCoords(space: Int): CustomList[Coordinate] = {
+    var coords : CustomList[Coordinate] = Nil[Coordinate]()
+    for(y <- 1 to getHeight){
+      for(x <- 1 to getWidth){
+        if (y % space == 0) {
+          coords = coords.append(new Coordinate(x, y))
+        }
+        else if (x % space == 0) {
+          coords = coords.append(new Coordinate(x, y))
+        }
+      }
+    }
+    coords
+  }
+
+  def drawGrid(g : Graphics, space : Int): Unit = {
+    if (gridCoords.isInstanceOf[Nil[Coordinate]]){
+      gridCoords = findGridCoords(space)
+    }
+
+    g.setColor(Color.LIGHT_GRAY)
+    drawCoordinates(gridCoords, g)
+    g.setColor(Color.BLACK)
+  }
 }
