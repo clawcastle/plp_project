@@ -11,7 +11,7 @@ class UIAssembler {
   val normalKeyListener = new NormalDrawKeyListener
   val autoKeyListener = new AutoDrawKeyListener
   val undoManager: UndoManager = new UndoManager
-  val frameDimension = new Dimension(800, 600)
+  val frameDimension = new Dimension(900, 800)
   var textArea: JTextArea = _
   var document: Document = _
   var errorText: JTextPane = _
