@@ -45,7 +45,7 @@ object CommandParser {
     case "Rectangle" => createRectangle(CustomList.fromScalaList(command.replace("Rectangle", "").split(',').toList), boundary)
     case "Text-At" => createText(CustomList.fromScalaList(command.replace("Text-At", "").split(',').toList))
     case "Fill" => createFillOfObject(CustomList.fromScalaList(command.replace("Fill", "").split(',').toList), boundary)
-    case "Pie-Chart" => createPieChart(CustomList.fromScalaList(command.replace("Pie-Chart", "").split(',').toList))
+    case "Pie-Chart" => createPieChart(CustomList.fromScalaList(command.replace("Pie-Chart", "").split(',').toList),boundary)
     case "Draw" => createDraw(CustomList.fromScalaList(command.replace("Draw", "").split(";").toList),boundary)
     case _ => throw new Exception("Unknown command: " + command)
   }
@@ -116,15 +116,14 @@ object CommandParser {
     new BoundingBox(coordinates)
   }
 
-  def createPieChart(listOfParams: CustomList[String]): CanvasElement = {
+  def createPieChart(listOfParams: CustomList[String], boundary: Boundary): CanvasElement = {
     val params = listOfParams.map(str => str.replace(" ", "").toInt)
     val radius = params(0)
     val centre_x = params(1)
     val centre_y = params(2)
     val slices = params.skip(3)
 
-    val coords = mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(Draw.drawCircle(centre_x, centre_y, radius))
-
+    val coords = CustomList.filter(mapToLines(centre_x, centre_y, 0, radius, slices, () => Nil[CustomList[Coordinate]]()).reduce(Nil[Coordinate](), (a: CustomList[Coordinate], b: CustomList[Coordinate]) => a.merge(b)).merge(Draw.drawCircle(centre_x, centre_y, radius)),coordinate => exceedsBoundary(boundary,coordinate))
 
     new Circle(coords)
   }
