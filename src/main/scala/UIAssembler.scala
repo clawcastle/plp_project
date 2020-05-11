@@ -1,14 +1,19 @@
 import java.awt.event.{ActionEvent, ActionListener, KeyEvent, KeyListener}
 import java.awt._
 
+import javax.swing.event.{UndoableEditEvent, UndoableEditListener}
+import javax.swing.text.Document
+import javax.swing.undo.{CannotUndoException, UndoManager}
 import javax.swing.{BorderFactory, JComponent, JPanel, _}
 
 class UIAssembler {
   val gbc = new GridBagConstraints()
   val normalKeyListener = new NormalDrawKeyListener
   val autoKeyListener = new AutoDrawKeyListener
-  val frameDimension = new Dimension(900, 700)
+  val undoManager: UndoManager = new UndoManager
+  val frameDimension = new Dimension(900, 800)
   var textArea: JTextArea = _
+  var document: Document = _
   var errorText: JTextPane = _
   var canvas: CustomCanvas = _
   var drawButton: JButton = _
@@ -117,6 +122,16 @@ class UIAssembler {
 
   def createTextArea(): JComponent = {
     textArea = new JTextArea()
+    document = textArea.getDocument
+
+    document.addUndoableEditListener(new UndoableEditListener {
+      override def undoableEditHappened(undoableEditEvent: UndoableEditEvent): Unit =
+        {
+          undoManager.addEdit(undoableEditEvent.getEdit)
+        }
+    })
+
+
     textArea.addKeyListener(normalKeyListener)
     textArea.setLineWrap(true)
     val scrollPane = new JScrollPane(textArea)
@@ -157,6 +172,17 @@ class UIAssembler {
     canvas.paintPublic(shapes)
   }
 
+  def undo(): Unit = {
+    try {
+      if (undoManager.canUndo) {
+        undoManager.undo()
+      }
+    } catch {
+      case e: CannotUndoException => updateErrorText(e)
+    }
+  }
+
+
   private def addComp(panel: JPanel, comp: JComponent, gbc: GridBagConstraints, x: Int, y: Int, gWidth: Int, gHeight: Int, fill: Int, weightx: Double, weighty: Double): Unit = {
     gbc.gridx = x
     gbc.gridy = y
@@ -189,6 +215,8 @@ class UIAssembler {
           if (e.getKeyCode.equals(10)) {
             parseCommands()
           }
+        } else if (e.getKeyCode.equals(KeyEvent.VK_Z)) {
+          undo()
         }
       }
     }
@@ -201,6 +229,8 @@ class UIAssembler {
       //Do nothing
     }
   }
+
+
 
 }
 
