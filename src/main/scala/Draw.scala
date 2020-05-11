@@ -11,7 +11,7 @@ object Draw {
     (x0 * y1 - x1 * y0 + (x1 - x0) * y) / (y1 - y0)
   }
 
-  def drawLine(x0: Int, y0: Int, x1: Int, y1: Int): CustomList[Coordinate] = if ((x1 - x0).abs > (y1 - y0).abs) {
+  def drawLine(x0: Int, y0: Int, x1: Int, y1: Int): CustomList[Coordinate] = if (x1 - x0 > y1 - y0) {
     CustomList.range(x0, x1).map(x => (x, findYBresenhams(x0, y0, x1, y1, x))).map(coordinate => new Coordinate(coordinate._1, coordinate._2))
     } else {
     CustomList.range(y0, y1).map(y => (findXBresenhams(x0, y0, x1, y1, y), y)).map(coordinate => new Coordinate(coordinate._1, coordinate._2))
@@ -63,4 +63,7 @@ object Draw {
 
     fillObject(seed_x, seed_y + 1, objectCoords, fillObject(seed_x + 1, seed_y, objectCoords, fillObject(seed_x, seed_y - 1, objectCoords, fillObject(seed_x - 1, seed_y, objectCoords, fillCoords.append(new Coordinate(seed_x, seed_y))))))
   }
+
+
+
 }

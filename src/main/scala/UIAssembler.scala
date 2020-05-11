@@ -7,7 +7,7 @@ class UIAssembler {
   val gbc = new GridBagConstraints()
   val normalKeyListener = new NormalDrawKeyListener
   val autoKeyListener = new AutoDrawKeyListener
-  val frameDimension = new Dimension(800, 600)
+  val frameDimension = new Dimension(900, 700)
   var textArea: JTextArea = _
   var errorText: JTextPane = _
   var canvas: CustomCanvas = _
