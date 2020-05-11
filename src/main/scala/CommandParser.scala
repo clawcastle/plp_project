@@ -142,6 +142,7 @@ object CommandParser {
     (x1,y1)
   }
 
+  @scala.annotation.tailrec
   private def mapToLines(x: Int, y: Int, percent: Int, radius: Int, slices: CustomList[Int], listBuilder: () => CustomList[CustomList[Coordinate]]): CustomList[CustomList[Coordinate]] = slices match {
     case Nil() => listBuilder()
     case Cons(head, tail) =>
