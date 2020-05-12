@@ -97,10 +97,15 @@ object CustomList {
     case Cons(head, tail) => Cons(func(head), map(tail, func))
   }
 
-  def range(start: Int, end: Int): CustomList[Int] = if (start > end) {
-    Nil()
+  def range(start: Int, end: Int) : CustomList[Int] = {
+    rangeRec(start, end, () => Nil())
+  }
+
+  @scala.annotation.tailrec
+  private def rangeRec(start: Int, end: Int, cont: () => CustomList[Int]): CustomList[Int] = if (start > end) {
+    cont()
   } else {
-    Cons(start, range(start + 1, end))
+    rangeRec(start + 1, end, () => Cons(start, cont()))
   }
 
   def append[T](list: CustomList[T], element: T): CustomList[T] = Cons(element, list)
