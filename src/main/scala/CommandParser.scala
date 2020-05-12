@@ -152,7 +152,7 @@ object CommandParser {
   }
 }
 
-class Coordinate(var x: Int, var y: Int) {
+class Coordinate(val x: Int, val y: Int) {
   override def equals(obj: Any): Boolean = obj match {
     case o: Coordinate => o.x == x && o.y == y
     case _ => false

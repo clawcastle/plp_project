@@ -1,0 +1,69 @@
+import org.sireum.logika._
+
+l"""{
+    fact //axioms
+        def range(s: Z, e: Z, l: ZS) : ZS
+        rBase. forall l: ZS forall s, e: Z s == e -> range(s, e, l) == l
+        rRec. forall l: ZS forall s, e: Z s < e -> range(s, e, l) == range(s+1, e, l:+ s)
+}"""
+
+
+@pure def rng(start: Z, end: Z, list: ZS): ZS = {
+    l"""{
+        requires start <= end
+        ensures result == range(start, end, list)
+    }"""
+
+    if (start == end) {
+        val r: ZS = list.clone
+        l"""{
+            1. start == end                                                  premise
+            2. r == list                                                     premise
+            3. forall l: ZS forall s, e: Z s == e -> range(s, e, l) == l     fact rBase
+            4. forall s, e: Z s == e -> range(s, e, list) == list            foralle 3 list
+            5. start == end -> range(start, end, list) == list               foralle 4 start end
+            6. range(start, end, list) == list                               impliese 5 1
+            7. r == range(start, end, list)                                  algebra 2 6
+        }"""
+        return r
+    } else {
+        l"""{
+            1. !(start == end)        premise
+            2. start <= end           premise
+            3. start < end            algebra 1 2
+        }"""
+
+        val updStart: Z = start + 1
+
+        l"""{
+            1. updStart == start + 1        premise
+            2. start < end                  premise
+            3. updStart <= end              algebra 1 2
+        }"""
+
+        val updList: ZS = list :+ start
+
+        l"""{
+            1. updList == list :+ start     premise
+        }"""
+
+        val r: ZS = rng(updStart, end, updList)
+
+        l"""{
+            1. r == range(updStart, end, updList)        premise
+            2. updStart == start + 1                     premise
+            3. r == range(start + 1, end, updList)       algebra 1 2
+            4. updList == list:+ start                   premise
+            5. r == range(start + 1, end, list:+ start)  subst1 4 3
+            6. forall l: ZS forall s, e: Z s < e -> range(s, e, l) == range(s+1, e, l:+ s) fact rRec
+            7. forall s, e: Z s < e -> range(s, e, list) == range(s+1, e, list:+ s)        foralle 6 list
+            8. start < end -> range(start, end, list) == range(start + 1, end, list:+ start)  foralle 7 start end
+            9. start < end                               premise
+            10. range(start, end, list) == range(start + 1, end, list:+ start)       impliese 8 9
+            11. r == range(start, end, list)             algebra 5 10
+        }"""
+
+        return r
+    }
+
+}
