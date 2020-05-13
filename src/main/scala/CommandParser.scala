@@ -62,27 +62,36 @@ object CommandParser {
     val color = listOfParams.asInstanceOf[Cons[String]].head.replace(" ", "")
     val objectToFill = listOfParams.asInstanceOf[Cons[String]].tail
     val objectToFillAsString = toStringList(objectToFill, "")
+
     val canvas = mapToCanvasElement(objectToFillAsString, boundary)
 
     val typeOfCanvas = canvas.getClass.getName
 
     typeOfCanvas match {
       case "Rectangle" =>
-        val listOfParams = objectToFillAsString.replace("Rectangle", "").split(',').toList
-        val list = listOfParams.map(str => str.replace(" ", "").toInt)
-        val seed_x = Math.round((list(0) + list(2)) / 2)
-        val seed_y = Math.round((list(1) + list(3)) / 2)
-        val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
-        return new Fill(res, color, canvas)
+        fillRectangle(objectToFillAsString,canvas,color,boundary)
       case "Circle" =>
-        val listOfParams = objectToFillAsString.replace("Circle", "").split(',').toList
-        val list = listOfParams.map(str => str.replace(" ", "").toInt)
-        val seed_x = list(0)
-        val seed_y = list(1)
-        val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
-        return new Fill(res, color, canvas)
+        fillCircle(objectToFillAsString,canvas,color,boundary)
       case _ => throw new Exception("Not supported shape" + typeOfCanvas)
     }
+  }
+
+  private def fillRectangle(objectToFillAsString: String, canvas : CanvasElement, color : String, boundary: Boundary): Fill = {
+    val listOfParams = objectToFillAsString.replace("Rectangle", "").split(',').toList
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val seed_x = Math.round((list(0) + list(2)) / 2)
+    val seed_y = Math.round((list(1) + list(3)) / 2)
+    val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
+    return new Fill(res, color, canvas)
+  }
+
+  private def fillCircle(objectToFillAsString: String, canvas: CanvasElement, color: String,boundary: Boundary): Fill = {
+    val listOfParams = objectToFillAsString.replace("Circle", "").split(',').toList
+    val list = listOfParams.map(str => str.replace(" ", "").toInt)
+    val seed_x = list(0)
+    val seed_y = list(1)
+    val res = CustomList.filter(Draw.fillObject(seed_x, seed_y, canvas.coordinates, Nil()), coordinate => exceedsBoundary(boundary, coordinate))
+    return new Fill(res, color, canvas)
   }
 
   @scala.annotation.tailrec
