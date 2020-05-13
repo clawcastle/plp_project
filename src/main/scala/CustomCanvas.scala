@@ -1,11 +1,12 @@
 import java.awt.{Color, Graphics}
 
-import javax.swing.JPanel
+import javax.swing.{JPanel, SwingUtilities}
 
 class CustomCanvas extends JPanel {
 
   var canvasElements: CustomList[CanvasElement] = Nil()
   var gridCoords: CustomList[Coordinate] = Nil()
+  var shouldHighlight: Boolean = false
 
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
@@ -16,27 +17,50 @@ class CustomCanvas extends JPanel {
 
   def drawCanvasElements(canvasElements: CustomList[CanvasElement], g: Graphics): Unit =
   {
-    var allCoords: CustomList[Coordinate] = Nil()
-    for (x <- 0 until canvasElements.length()) {
-      canvasElements(x) match {
-        case at: TextAt =>
-          val textAt = at
-          g.drawString(textAt.text, textAt.coordinates(0).x, textAt.coordinates(0).y)
-        case fill: Fill =>
-          val previousColor = g.getColor
-          g.setColor(mapToColor(fill.color))
-          drawCoordinates(fill.coordinatesToBeColored,g)
-          g.setColor(previousColor)
-          allCoords = allCoords.merge(fill.elementToBeFilled.coordinates)
-        case drawObjects: DrawObjects =>
-          g.setColor(mapToColor(drawObjects.color))
-          drawCanvasElements(drawObjects.elements,g)
-          g.setColor(Color.BLACK)
-        case _ => allCoords = allCoords.merge(canvasElements(x).coordinates)
-      }
-    }
+    if (canvasElements.length() == 0)
+      return
 
-    drawCoordinates(allCoords, g)
+    drawOldElements(canvasElements, g)
+    drawLastElement(canvasElements(canvasElements.length()-1), g)
+  }
+
+  def drawOldElements(canvasElements: CustomList[CanvasElement], g: Graphics): Unit = {
+    var oldCoords: CustomList[Coordinate] = Nil()
+    for (x <- 0 until canvasElements.length()-1) {
+      oldCoords = oldCoords.merge(handleElement(canvasElements(x), g))
+    }
+    drawCoordinates(oldCoords, g)
+  }
+
+  def drawLastElement(lastElement: CanvasElement, g: Graphics): Unit = {
+    if (shouldHighlight)
+      g.setColor(Color.RED)
+    else
+      g.setColor(Color.BLACK)
+
+    var newCoords = handleElement(lastElement, g)
+    drawCoordinates(newCoords, g)
+  }
+
+  def handleElement(element: CanvasElement, g: Graphics): CustomList[Coordinate] = {
+    var coords: CustomList[Coordinate] = Nil()
+    element match {
+      case at: TextAt =>
+        val textAt = at
+        g.drawString(textAt.text, textAt.coordinates(0).x, textAt.coordinates(0).y)
+      case fill: Fill =>
+        val previousColor = g.getColor
+        g.setColor(mapToColor(fill.color))
+        drawCoordinates(fill.coordinatesToBeColored, g)
+        g.setColor(previousColor)
+        coords = coords.merge(fill.elementToBeFilled.coordinates)
+      case drawObjects: DrawObjects =>
+        g.setColor(mapToColor(drawObjects.color))
+        drawCanvasElements(drawObjects.elements, g)
+        g.setColor(Color.BLACK)
+      case _ => coords = coords.merge(element.coordinates)
+    }
+    coords
   }
 
   def drawCoordinates(coordinates: CustomList[Coordinate], g: Graphics): Unit = {
@@ -47,7 +71,21 @@ class CustomCanvas extends JPanel {
 
   def paintPublic(elements: CustomList[CanvasElement]): Unit = {
     canvasElements = elements
-    repaint()
+    new Thread(() => {
+      SwingUtilities.invokeAndWait(new Runnable {
+        override def run(): Unit = {
+          shouldHighlight = true
+          repaint()
+        }
+      })
+
+      Thread.sleep(2000)
+
+      SwingUtilities.invokeAndWait(() => {
+        shouldHighlight = false
+        repaint()
+      })
+    }).start()
   }
 
   def mapToColor(colorAsString: String) : Color = {
