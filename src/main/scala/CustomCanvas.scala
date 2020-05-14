@@ -72,7 +72,7 @@ class CustomCanvas extends JPanel {
   def paintPublic(elements: CustomList[CanvasElement]): Unit = {
     canvasElements = elements
     new Thread(() => {
-      SwingUtilities.invokeAndWait(new Runnable {
+      SwingUtilities.invokeLater(new Runnable {
         override def run(): Unit = {
           shouldHighlight = true
           repaint()
@@ -81,7 +81,7 @@ class CustomCanvas extends JPanel {
 
       Thread.sleep(2000)
 
-      SwingUtilities.invokeAndWait(() => {
+      SwingUtilities.invokeLater(() => {
         shouldHighlight = false
         repaint()
       })

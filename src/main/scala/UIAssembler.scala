@@ -156,16 +156,20 @@ class UIAssembler {
   }
 
   def parseCommands(): Unit = {
-    try {
-      errorText.setText("")
-      drawShapes(CommandParser.parseCommands(textArea.getText))
-    } catch {
-      case e: Exception => updateErrorText(e)
-    }
+    new Thread(() => {
+      SwingUtilities.invokeLater(() => {
+        try {
+          errorText.setText("")
+          drawShapes(CommandParser.parseCommands(textArea.getText))
+        } catch {
+          case e: Exception => updateErrorText(e)
+        }
+      })
+    }).start()
   }
 
   def updateErrorText(e: Exception): Unit = {
-    errorText.setText(e.getMessage)
+    SwingUtilities.invokeLater(() => {errorText.setText(e.getMessage)});
   }
 
   def drawShapes(shapes: CustomList[CanvasElement]): Unit = {
@@ -181,7 +185,6 @@ class UIAssembler {
       case e: CannotUndoException => updateErrorText(e)
     }
   }
-
 
   private def addComp(panel: JPanel, comp: JComponent, gbc: GridBagConstraints, x: Int, y: Int, gWidth: Int, gHeight: Int, fill: Int, weightx: Double, weighty: Double): Unit = {
     gbc.gridx = x
