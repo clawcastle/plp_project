@@ -92,11 +92,6 @@ sealed abstract class CustomList[T] {
 }
 
 object CustomList {
-  def map[T1, T2](list: CustomList[T1], func: T1 => T2): CustomList[T2] = list match {
-    case Nil() => Nil()
-    case Cons(head, tail) => Cons(func(head), map(tail, func))
-  }
-
   def range(start: Int, end: Int) : CustomList[Int] = {
     rangeRec(start, end, () => Nil())
   }
@@ -106,55 +101,6 @@ object CustomList {
     cont()
   } else {
     rangeRec(start + 1, end, () => Cons(start, cont()))
-  }
-
-  def append[T](list: CustomList[T], element: T): CustomList[T] = Cons(element, list)
-
-  def appendIf[T](list: CustomList[T], element: T, predicate: () => Boolean): CustomList[T] = if (predicate()) {
-    append(list, element)
-  } else {
-    list
-  }
-
-  def merge[T](list1: CustomList[T], list2: CustomList[T]): CustomList[T] = list1 match {
-    case Nil() => list2
-    case Cons(head, tail) => Cons(head, merge(tail, list2))
-  }
-
-  @scala.annotation.tailrec
-  def foldl[T1, T2](list: CustomList[T1], seed: T2, func: (T1,T2) => T2): T2 = list match {
-    case Nil() => seed
-    case Cons(head, tail) => foldl(tail, func(head, seed), func)
-  }
-
-  @scala.annotation.tailrec
-  def find[T](value: T, list: CustomList[T]): Boolean = list match {
-    case Nil() => false
-    case Cons(head, tail) => head == value || find(value, tail)
-  }
-
-  @scala.annotation.tailrec
-  def forEach[T](list: CustomList[T], func: T => Unit): Unit = list match {
-    case Nil() => ();
-    case Cons(head, tail) =>
-      func(head)
-      forEach(tail, func);
-  }
-
-  def reverse[T](list: CustomList[T]): CustomList[T] = reverseRec(list, () => Nil())
-
-  @scala.annotation.tailrec
-  def reverseRec[T](list: CustomList[T], cont: () => CustomList[T]): CustomList[T] = list match {
-    case Nil() => cont()
-    case Cons(head, _) => reverseRec(list, () => Cons(head, cont()))
-  }
-
-  def remove[T](list: CustomList[T], predicate: T => Boolean): CustomList[T] = reverse(removeRec(list, predicate, () => Nil()))
-
-  @scala.annotation.tailrec
-  private def removeRec[T](list: CustomList[T], predicate: T => Boolean, cont: () => CustomList[T]): CustomList[T] = list match {
-    case Nil() => cont()
-    case Cons(head, tail) => if(predicate(head)) removeRec(tail, predicate, () => cont()) else removeRec(tail, predicate, () => Cons(head, cont()))
   }
 
   @scala.annotation.tailrec
